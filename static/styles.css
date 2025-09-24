@@ -1,0 +1,83 @@
+body {
+    background-color: #f0f4f8;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.hero {
+    background: linear-gradient(135deg, #007bff, #00c6ff);
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+    border-radius: 0 0 20px 20px;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.disclaimer {
+    background-color: #ffc107;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+    font-weight: bold;
+}
+
+.accordion-button {
+    font-weight: bold;
+}
+
+.flag-table th {
+    background-color: #e9ecef;
+}
+
+.command {
+    font-family: monospace;
+    background-color: #e9ecef;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+code.flag {
+    white-space: nowrap;
+    font-family: monospace;
+    background-color: #f8f9fa;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: black;
+}
+
+/* Additional styles for better spacing and readability */
+.container {
+    max-width: 1200px;
+}
+
+.accordion-item {
+    border: none;
+}
+
+.list-group-item {
+    border-radius: 4px;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.text-danger {
+    font-size: 0.875rem;
+    margin-top: 5px;
+}
+
+
+
+
+

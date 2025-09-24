@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Kali Linux Tools Guide</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="hero">
+        <div class="container">
+            <h1>Kali Linux Tools for Vulnerability Assessment and Ethical Hacking</h1>
+            <p>This guide is for educational purposes only. All information is to promote understanding of cybersecurity tools for ethical, legal use with explicit permission.</p>
+        </div>
+    </div>
+    <div class="text-center my-4">
+        <img src="{{ url_for('static', filename='Gemini_Generated_Image_ki.png') }}" alt="Banner Image" class="img-fluid" style="max-width: 400px; max-height: 400px;">
+        <p class="text-muted small mt-2">Image made by Gemini</p>
+    </div>
+
+    <div class="container my-5">
+        <div class="disclaimer">
+            <p><strong>Important:</strong> Use these tools responsibly on your own systems or with written permission.</p>
+        </div>
+
+        <h2 class="mt-5 mb-4">Tools Overview</h2>
+        <div class="accordion" id="toolsAccordion">
+            {% for tool in tools %}
+            <div class="accordion-item shadow-sm mb-3 rounded">
+                <h2 class="accordion-header" id="heading{{ loop.index }}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
+                        {{ tool.name }}
+                    </button>
+                </h2>
+                <div id="collapse{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading{{ loop.index }}">
+                    <div class="accordion-body">
+    {% if tool.notes %}
+        <p><strong>Notes:</strong> {{ tool.notes }}</p>
+    {% endif %}
+
+    {% if tool.description %}
+        <p><strong>Description:</strong> {{ tool.description }}</p>
+    {% endif %}
+
+    {% if tool.when_why %}
+        <p><strong>When & Why:</strong> {{ tool.when_why }}</p>
+    {% endif %}
+
+    {% if tool.how %}
+        <p><strong>Basic Usage (Educational Example):</strong>
+            <pre class="command">{{ tool.how }}</pre>
+        </p>
+    {% endif %}
+
+                        {% if tool.flags %}
+                        <h5>Common Flags/Options:</h5>
+                        <table class="table table-striped flag-table">
+                            <thead>
+                                <tr>
+                                    <th>Flag</th>
+                                    <th>Explanation & Why</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for flag in tool.flags %}
+                                <tr>
+                                    <td><code class="flag">{{ flag.flag }}</code></td>
+                                    <td>{{ flag.explanation }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% endif %}
+
+                        {% if tool.examples %}
+                        <h5>Examples:</h5>
+                        <ul class="list-group mb-3">
+                            {% for example in tool.examples %}
+                            <li class="list-group-item">
+                                <p class="mb-1"><span class="command">{{ example.command }}</span></p>
+                                <p class="text-muted">{{ example.explanation }}</p>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+
+                        {% if tool.tips %}
+                        <h5>Tips:</h5>
+                        <ul class="list-group mb-3">
+                            {% for tip_key, tip_value in tool.tips.items() %}
+                            <li class="list-group-item">
+                                <strong>{{ tip_key.replace("_", " ").title() }}:</strong> {{ tip_value }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        <button class="btn btn-danger btn-sm mt-3 collapse-close-btn" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}">
+                            Close
+                        </button>
+                        <br>
+                        {% if tool.advanced %}
+                        <h5>
+                            <a class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse" href="#advancedTips{{ loop.index }}" role="button" aria-expanded="false" aria-controls="advancedTips{{ loop.index }}">
+                                Show Advanced Tips
+                            </a>
+                        </h5>
+                        <div class="collapse" id="advancedTips{{ loop.index }}">
+                            {% if tool.advanced.advanced_tips %}
+                            <h6>Advanced Tips:</h6>
+                            <ul class="list-group mb-2">
+                                {% for adv in tool.advanced.advanced_tips %}
+                                <li class="list-group-item">{{ adv }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                            {% if tool.advanced.tips %}
+                            <h6>More Tips:</h6>
+                            <ul class="list-group">
+                                {% for tip in tool.advanced.tips %}
+                                <li class="list-group-item">{{ tip }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <h2 class="mt-5 mb-4">User Reviews</h2>
+        <form method="POST" class="mb-4 card p-4 shadow-sm">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.username.label(class="form-label fw-bold") }}
+                {{ form.username(class="form-control") }}
+                {% if form.username.errors %}
+                    <ul class="text-danger">
+                        {% for error in form.username.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                {{ form.review.label(class="form-label fw-bold") }}
+                {{ form.review(class="form-control", rows=4) }}
+                {% if form.review.errors %}
+                    <ul class="text-danger">
+                        {% for error in form.review.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            {{ form.submit(class="btn btn-primary btn-lg") }}
+        </form>
+
+        {% if reviews %}
+        <div class="list-group">
+            {% for review in reviews %}
+            <div class="list-group-item list-group-item-action shadow-sm mb-3 rounded">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ review[0] }}</h5>
+                    <small class="text-muted">{{ review[2] }}</small>
+                </div>
+                <p class="mb-1">{{ review[1] }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted">No reviews yet. Share your thoughts!</p>
+        {% endif %}
+    </div>
+
+    <script>
+        document.querySelectorAll('.collapse-close-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const target = document.querySelector(this.dataset.bsTarget);
+                const collapseInstance = bootstrap.Collapse.getOrCreateInstance(target);
+                collapseInstance.hide();
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Chatbot Button -->
+<div id="chatbot-button"
+     style="position: fixed; bottom: 20px; right: 20px; background: #0d6efd;
+            color: white; border-radius: 50%; width: 60px; height: 60px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 28px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+    💬
+</div>
+
+<!-- Chat Window -->
+<div id="chat-window"
+     style="position: fixed; bottom: 90px; right: 20px; width: 300px; height: 400px;
+            background: white; border: 1px solid #ccc; border-radius: 12px;
+            display: none; flex-direction: column; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+
+    <div style="background:#0d6efd; color:white; padding:10px; border-top-left-radius:12px; border-top-right-radius:12px;">
+        <strong>AI Chatbot</strong>
+    </div>
+
+    <div id="chat-messages" style="flex:1; overflow-y:auto; padding:10px; font-size:14px;"></div>
+
+    <div style="padding:10px; border-top:1px solid #ddd;">
+        <input type="text" id="chat-input" placeholder="Type a message..."
+               style="width:80%; padding:5px; border:1px solid #ccc; border-radius:4px;">
+        <button id="send-btn" class="btn btn-primary btn-sm">Send</button>
+    </div>
+</div>
+
+<script>
+    const chatButton = document.getElementById("chatbot-button");
+    const chatWindow = document.getElementById("chat-window");
+    const sendBtn = document.getElementById("send-btn");
+    const chatInput = document.getElementById("chat-input");
+    const chatMessages = document.getElementById("chat-messages");
+
+    chatButton.addEventListener("click", () => {
+        chatWindow.style.display = chatWindow.style.display === "none" ? "flex" : "none";
+    });
+
+    function appendMessage(sender, text) {
+        const msg = document.createElement("div");
+        msg.style.marginBottom = "8px";
+        msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+        chatMessages.appendChild(msg);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    sendBtn.addEventListener("click", async () => {
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        appendMessage("You", message);
+        chatInput.value = "";
+
+        const res = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message })
+        });
+
+        const data = await res.json();
+        appendMessage("AI", data.reply);
+    });
+</script>
+
+
+</body>
+</html>

