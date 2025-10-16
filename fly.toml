@@ -6,9 +6,10 @@ builder = "paketobuildpacks/builder:base"
 
 [env]
 PORT = "8080"
+FLASK_SECRET_KEY = "d8de497d0cb0ebfb2911e683a2c68221292d9bba5846569280cc0a6150ed7366"
 
 [http_service]
-processes = ["web"]  # ← THIS FIXES THE ERROR
+processes = ["web"]
 internal_port = 8080
 force_https = true
 auto_stop_machines = true
@@ -20,4 +21,10 @@ source = "reviews_data"
 destination = "/data"
 
 [processes]
-web = "gunicorn app:app --bind 0.0.0.0:8080"
+web = "gunicorn app:app --bind 0.0.0.0:8080 --workers 3"
+
+[health]
+port = 8080
+path = "/"
+interval = 10000
+timeout = 2000
