@@ -8,6 +8,7 @@ builder = "paketobuildpacks/builder:base"
 PORT = "8080"
 
 [http_service]
+processes = ["web"]  # ← THIS FIXES THE ERROR
 internal_port = 8080
 force_https = true
 auto_stop_machines = true
