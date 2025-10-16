@@ -1,8 +1,8 @@
-app = "cybertrain"  # Your app name; change if different
-primary_region = "iad"  # Nearest region, e.g., iad for US East
+app = "cybertrain"
+primary_region = "iad"
 
 [build]
-builder = "paketobuildpacks/builder:base"  # Ensures Python detection
+builder = "paketobuildpacks/builder:base"
 
 [env]
 PORT = "8080"
@@ -10,10 +10,13 @@ PORT = "8080"
 [http_service]
 internal_port = 8080
 force_https = true
-auto_stop_machines = true  # Saves free tier resources when idle
+auto_stop_machines = true
 auto_start_machines = true
-min_machines_running = 0  # Start on demand (free)
+min_machines_running = 0
 
 [[mounts]]
-source = "reviews_data"  # Volume for DB persistence
+source = "reviews_data"
 destination = "/data"
+
+[processes]
+web = "gunicorn app:app --bind 0.0.0.0:8080"
