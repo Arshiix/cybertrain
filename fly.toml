@@ -2,7 +2,8 @@ app = "cybertrain"
 primary_region = "iad"
 
 [build]
-  image = "Dockerfile"
+  dockerfile = "./Dockerfile"
+
 
 [env]
 PORT = "8080"
