@@ -14,7 +14,7 @@ from functools import wraps
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_secure_random_secret_key_here')  # Use env var in production
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_secure_random_secret_key_here')  
 
 # Rate limiting
 limiter = Limiter(
@@ -24,7 +24,7 @@ limiter = Limiter(
 )
 
 # Database setup
-DB_NAME = 'reviews.db'
+DB_NAME = '/data/reviews.db'
 
 
 def init_db():
